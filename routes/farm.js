@@ -11,6 +11,8 @@ const stringify = require("json-stringify-pretty-compact"); //json 값을 문자
 let router = express.Router();
 
 const { User } = require("../models");
+const { Sites } = require("../models");
+const { Sensors } = require("../models");
 
 // testimport DB // king
 
@@ -104,14 +106,18 @@ router.get("/:userId", async (req, res, next) => {
 router.put("/:userId", async (req, res, next) => {
   let uid = req.body.uid;
   let sid = req.body.sid_base;
-  User.update({ uid: uid, sid: sid }, { where: { uid: req.params.userId } })
-    .then((result) => {
-      res.json({ result: result, error: null, data: null });
-    })
-    .catch((err) => {
-      console.error(err);
-      res.json({ result: false, error: err, data: null });
-    });
+  if (!empty(req.params.userId)) {
+    User.update({ uid: uid, sid: sid }, { where: { uid: req.params.userId } })
+      .then((result) => {
+        res.json({ result: result, error: null, data: null });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({ result: false, error: err, data: null });
+      });
+  } else {
+    res.json({ result: false, error: null, data: null });
+  }
 });
 
 router.put("/:userId/password", async (req, res, next) => {
@@ -143,11 +149,88 @@ router.delete("/:userId", async (req, res, next) => {
   }
 });
 
-router.post("/update", async (req, res, next) => {
-  let uid = req.body.uid;
-  let password = req.body.password;
-  if (!empty(uid) && !empty(password)) {
-    User.update({ password: password }, { where: { uid: uid } })
+router.get("/:userId/sites", async (req, res, next) => {
+  Sites.findAll({})
+    .then((result) => {
+      // res.json({"data":result, test: "test", error: null})
+      res.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({ error: null });
+    });
+});
+
+router.post("/:userId/sites", async (req, res, next) => {
+  let sid = req.body.sid;
+  //   let uid = req.body.uid;
+  let site_name = req.body.site_name;
+  let site_address = req.body.site_address;
+  let site_gps_latitude = req.body.site_gps_latitude;
+  let site_gps_longitude = req.body.site_gps_longitude;
+  let site_th_sensor_count = req.body.site_th_sensor_count;
+  let site_soil_sensor_count = req.body.site_soil_sensor_count;
+  let site_side_motor_count = req.body.site_side_motor_count;
+  let site_top_motor_count = req.body.site_top_motor_count;
+  let site_actuator_count = req.body.site_actuator_count;
+  let site_pump_count = req.body.site_pump_count;
+  let site_valve_count = req.body.site_valve_count;
+  let site_cctv_count = req.body.site_cctv_count;
+  let site_set_alarm_enable = req.body.site_set_alarm_enable;
+  let site_set_alarm_high = req.body.site_set_alarm_high;
+  let site_set_alarm_low = req.body.site_set_alarm_low;
+  let site_set_alarm_timer = req.body.site_set_alarm_timer;
+
+  if (!empty(req.params.userId)) {
+    Sites.create({
+      sid: sid,
+      uid: req.params.userId,
+      site_name: site_name,
+      site_address: site_address,
+      site_gps_latitude: site_gps_latitude,
+      site_gps_longitude: site_gps_longitude,
+      site_th_sensor_count: site_th_sensor_count,
+      site_soil_sensor_count: site_soil_sensor_count,
+      site_side_motor_count: site_side_motor_count,
+      site_top_motor_count: site_top_motor_count,
+      site_actuator_count: site_actuator_count,
+      site_pump_count: site_pump_count,
+      site_valve_count: site_valve_count,
+      site_cctv_count: site_cctv_count,
+      site_set_alarm_enable: site_set_alarm_enable,
+      site_set_alarm_high: site_set_alarm_high,
+      site_set_alarm_low: site_set_alarm_low,
+      site_set_alarm_timer: site_set_alarm_timer,
+    })
+      .then((result) => {
+        res.json({ result: result, error: null, data: null });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({ result: false, error: err, data: null });
+      });
+  } else {
+    res.json({ result: false, error: null, data: null });
+  }
+});
+
+router.get("/:userId/sites/:siteId", async (req, res, next) => {
+  Sites.findAll({
+    where: { uid: req.params.userId, sid:req.params.siteId },
+  })
+    .then((result) => {
+      // res.json({"data":result, test: "test", error: null})
+      res.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({ error: null });
+    });
+});
+
+router.delete("/:userId/sites/:siteId", async (req, res, next) => {
+  if (!empty(req.params.userId)) {
+    Sites.destroy({ where: { uid: req.params.userId, sid:req.params.siteId} })
       .then((result) => {
         res.json(result);
       })
@@ -159,19 +242,67 @@ router.post("/update", async (req, res, next) => {
   }
 });
 
-router.post("/delete", async (req, res, next) => {
-  let uid = req.body.uid;
-  if (!empty(uid)) {
-    User.destroy({ where: { uid: uid } })
+router.put("/:userId/sites/:siteId", async (req, res, next) => {
+  let site_name = req.body.site_name;
+  let site_address = req.body.site_address;
+  let site_gps_latitude = req.body.site_gps_latitude;
+  let site_gps_longitude = req.body.site_gps_longitude;
+  let site_th_sensor_count = req.body.site_th_sensor_count;
+  let site_soil_sensor_count = req.body.site_soil_sensor_count;
+  let site_side_motor_count = req.body.site_side_motor_count;
+  let site_top_motor_count = req.body.site_top_motor_count;
+  let site_actuator_count = req.body.site_actuator_count;
+  let site_pump_count = req.body.site_pump_count;
+  let site_valve_count = req.body.site_valve_count;
+  let site_cctv_count = req.body.site_cctv_count;
+  let site_set_alarm_enable = req.body.site_set_alarm_enable;
+  let site_set_alarm_high = req.body.site_set_alarm_high;
+  let site_set_alarm_low = req.body.site_set_alarm_low;
+  let site_set_alarm_timer = req.body.site_set_alarm_timer;
+  if (!empty(req.params.siteId)) {
+    Sites.update(
+      {
+        site_name: site_name,
+        site_address: site_address,
+        site_gps_latitude: site_gps_latitude,
+        site_gps_longitude: site_gps_longitude,
+        site_th_sensor_count: site_th_sensor_count,
+        site_soil_sensor_count: site_soil_sensor_count,
+        site_side_motor_count: site_side_motor_count,
+        site_top_motor_count: site_top_motor_count,
+        site_actuator_count: site_actuator_count,
+        site_pump_count: site_pump_count,
+        site_valve_count: site_valve_count,
+        site_cctv_count: site_cctv_count,
+        site_set_alarm_enable: site_set_alarm_enable,
+        site_set_alarm_high: site_set_alarm_high,
+        site_set_alarm_low: site_set_alarm_low,
+        site_set_alarm_timer: site_set_alarm_timer,
+      },
+      { where: {uid: req.params.userId, sid:req.params.siteId } }
+    )
       .then((result) => {
         res.json(result);
       })
       .catch((err) => {
         console.error(err);
+        res.json({ result: false, error: err, data: null });
       });
   } else {
     res.json({ result: false, error: null, data: null });
   }
 });
+
+router.get("/:userId/site/:siteId/sensors", async (req, res, next) => {
+    Sensors.findAll({})
+      .then((result) => {
+        // res.json({"data":result, test: "test", error: null})
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({ error: null });
+      });
+  });
 
 module.exports = router;

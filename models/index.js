@@ -56,6 +56,8 @@ db.Sequelize = Sequelize;
 
 
 db.User = require('./USERS')(sequelize, Sequelize);
+db.Sites = require('./SITES')(sequelize, Sequelize);
+db.Sensors = require('./SENSORS')(sequelize, Sequelize);
 
 
 module.exports = db;
