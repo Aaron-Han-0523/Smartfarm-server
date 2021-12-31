@@ -11,7 +11,8 @@ const stringify = require("json-stringify-pretty-compact"); //json 값을 문자
 let router = express.Router();
 
 const {
-  User
+  User,
+  Motors
 } = require("../models");
 const {
   Sites
@@ -30,6 +31,9 @@ const {
 } = require("../models");
 const {
   Valves
+} = require("../models");
+const {
+  Actuators
 } = require("../models");
 
 // testimport DB // king
@@ -448,5 +452,186 @@ router.get("/:userId/site/:siteId/sensors", async (req, res, next) => {
       });
     });
 });
+
+// 관수 펌프 제어 상태 조회 
+router.get("/:userId/site/:siteId/controls/pumps", async (req, res, next) => {
+  Pumps.findAll({
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId
+      }
+    })
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        error: null
+      });
+    });
+});
+
+// 관수 펌프 개별 제어 설정
+router.put("/:userId/site/:siteId/controls/pumps/:pumpId", async (req, res, next) => {
+  let pump_type = req.body.pump_type;
+  let pump_name = req.body.pump_name;
+  if (!empty(req.params.pumpId)) {
+    Pumps.update({
+        pump_type: pump_type,
+        pump_name: pump_name,
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          pump_id: req.params.pumpId
+        }
+      })
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
+  }
+});
+
+// 기타 제어 설정 정보 조회
+router.get("/:userId/site/:siteId/controls/actuators", async (req, res, next) => {
+  Actuators.findAll({
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId
+      }
+    })
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        error: null
+      });
+    });
+});
+
+// 기타 제어 정보 설정 
+router.put("/:userId/site/:siteId/controls/actuators/:actuatorId", async (req, res, next) => {
+  let acturator_type = req.body.acturator_type;
+  let acturator_name = req.body.acturator_name;
+  if (!empty(req.params.actuatorId)) {
+    Actuators.update({
+        acturator_type: acturator_type,
+        acturator_name: acturator_name,
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          motor_id: req.params.actuatorId
+        }
+      })
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
+  }
+});
+
+//전체 천창 개폐기의 제어 정보(전체 열림, 전체 정지, 전체 닫힘)를 설정
+router.put("/:userId/site/:siteId/controls/top/motors", async (req, res, next) => {
+  let motor_name = req.body.motor_name;
+  if (!empty(req.params.siteId)) {
+    Motors.update({
+        motor_name: motor_name,
+        // motor_id: req.params.motorId
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          motor_type: "top",
+        }
+      })
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
+  }
+});
+
+
+// 개별 천창 개폐기의 제어 정보(열림, 정지, 닫힘)를 설정 
+router.put("/:userId/site/:siteId/controls/top/motors/:motorId", async (req, res, next) => {
+  let motor_name = req.body.motor_name;
+  if (!empty(req.params.motorId)) {
+    Motors.update({
+        // motor_type: motor_type,
+        motor_name: motor_name,
+        motor_id: req.params.motorId
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          motor_type: "top",
+        }
+      })
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
+  }
+});
+
+
+
 
 module.exports = router;
