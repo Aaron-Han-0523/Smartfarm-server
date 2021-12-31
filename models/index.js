@@ -58,6 +58,10 @@ db.Sequelize = Sequelize;
 db.User = require('./USERS')(sequelize, Sequelize);
 db.Sites = require('./SITES')(sequelize, Sequelize);
 db.Sensors = require('./SENSORS')(sequelize, Sequelize);
+db.Cctvs = require('./CCTVS')(sequelize, Sequelize);
+db.Events = require('./EVENTS')(sequelize, Sequelize);
+db.Pumps = require('./PUMPS')(sequelize, Sequelize);
+db.Valves = require('./VALVES')(sequelize, Sequelize);
 
 
 module.exports = db;

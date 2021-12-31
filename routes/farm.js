@@ -10,20 +10,45 @@ const stringify = require("json-stringify-pretty-compact"); //json 값을 문자
 
 let router = express.Router();
 
-const { User } = require("../models");
-const { Sites } = require("../models");
-const { Sensors } = require("../models");
+const {
+  User
+} = require("../models");
+const {
+  Sites
+} = require("../models");
+const {
+  Sensors
+} = require("../models");
+const {
+  Cctvs
+} = require("../models");
+const {
+  Events
+} = require("../models");
+const {
+  Pumps
+} = require("../models");
+const {
+  Valves
+} = require("../models");
 
 // testimport DB // king
 
-router.use(bodyParser.urlencoded({ extended: false }));
+router.use(bodyParser.urlencoded({
+  extended: false
+}));
 router.use(bodyParser.json());
 
 router.get("/loginCheck", (req, res) => {
   if (req.session.loginData) {
-    res.send({ loggedIn: true, loginData: req.session.loginData });
+    res.send({
+      loggedIn: true,
+      loginData: req.session.loginData
+    });
   } else {
-    res.send({ loggedIn: false });
+    res.send({
+      loggedIn: false
+    });
   }
 });
 
@@ -31,17 +56,31 @@ router.post("/login", async (req, res, next) => {
   let uid = req.body.uid;
   let password = req.body.password;
   if (!empty(uid) && !empty(password)) {
-    User.findOne({ where: { uid: uid } })
+    User.findOne({
+        where: {
+          uid: uid
+        }
+      })
       .then((results) => {
         bcrypt.compare(password, results.password, (error, result) => {
           if (result) {
-            req.session.loginData = { uid: uid, password: password };
+            req.session.loginData = {
+              uid: uid,
+              password: password
+            };
             req.session.save((error) => {
               if (error) console.log(error);
             });
-            res.json({ results, result: true });
+            res.json({
+              results,
+              result: true
+            });
           } else {
-            res.json({ result: false, error: null, data: null });
+            res.json({
+              result: false,
+              error: null,
+              data: null
+            });
           }
         });
       })
@@ -49,7 +88,11 @@ router.post("/login", async (req, res, next) => {
         console.error(err);
       });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
@@ -61,7 +104,9 @@ router.get("/account", async (req, res, next) => {
     })
     .catch((err) => {
       console.error(err);
-      res.json({ error: null });
+      res.json({
+        error: null
+      });
     });
 });
 
@@ -74,32 +119,50 @@ router.post("/account", async (req, res, next) => {
     bcrypt.hash(password, saltRounds, (error, hash) => {
       password = hash;
       User.create({
-        uid: uid,
-        password: password,
-        sid: sid,
-      })
+          uid: uid,
+          password: password,
+          sid: sid,
+        })
         .then((result) => {
-          res.json({ result: result, error: null, data: null });
+          res.json({
+            result: result,
+            error: null,
+            data: null
+          });
         })
         .catch((err) => {
           console.error(err);
-          res.json({ result: false, error: err, data: null });
+          res.json({
+            result: false,
+            error: err,
+            data: null
+          });
         });
     });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
 router.get("/:userId", async (req, res, next) => {
-  User.findAll({ where: { uid: req.params.userId } })
+  User.findAll({
+      where: {
+        uid: req.params.userId
+      }
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
     })
     .catch((err) => {
       console.error(err);
-      res.json({ error: null });
+      res.json({
+        error: null
+      });
     });
 });
 
@@ -107,16 +170,35 @@ router.put("/:userId", async (req, res, next) => {
   let uid = req.body.uid;
   let sid = req.body.sid_base;
   if (!empty(req.params.userId)) {
-    User.update({ uid: uid, sid: sid }, { where: { uid: req.params.userId } })
+    User.update({
+        uid: uid,
+        sid: sid
+      }, {
+        where: {
+          uid: req.params.userId
+        }
+      })
       .then((result) => {
-        res.json({ result: result, error: null, data: null });
+        res.json({
+          result: result,
+          error: null,
+          data: null
+        });
       })
       .catch((err) => {
         console.error(err);
-        res.json({ result: false, error: err, data: null });
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
       });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
@@ -124,20 +206,38 @@ router.put("/:userId/password", async (req, res, next) => {
   let password = req.body.password;
   bcrypt.hash(password, saltRounds, (error, hash) => {
     password = hash;
-    User.update({ password: password }, { where: { uid: req.params.userId } })
+    User.update({
+        password: password
+      }, {
+        where: {
+          uid: req.params.userId
+        }
+      })
       .then((result) => {
-        res.json({ result: result, error: null, data: null });
+        res.json({
+          result: result,
+          error: null,
+          data: null
+        });
       })
       .catch((err) => {
         console.error(err);
-        res.json({ result: false, error: err, data: null });
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
       });
   });
 });
 
 router.delete("/:userId", async (req, res, next) => {
   if (!empty(req.params.userId)) {
-    User.destroy({ where: { uid: req.params.userId } })
+    User.destroy({
+        where: {
+          uid: req.params.userId
+        }
+      })
       .then((result) => {
         res.json(result);
       })
@@ -145,7 +245,11 @@ router.delete("/:userId", async (req, res, next) => {
         console.error(err);
       });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
@@ -157,7 +261,9 @@ router.get("/:userId/sites", async (req, res, next) => {
     })
     .catch((err) => {
       console.error(err);
-      res.json({ error: null });
+      res.json({
+        error: null
+      });
     });
 });
 
@@ -183,54 +289,76 @@ router.post("/:userId/sites", async (req, res, next) => {
 
   if (!empty(req.params.userId)) {
     Sites.create({
-      sid: sid,
-      uid: req.params.userId,
-      site_name: site_name,
-      site_address: site_address,
-      site_gps_latitude: site_gps_latitude,
-      site_gps_longitude: site_gps_longitude,
-      site_th_sensor_count: site_th_sensor_count,
-      site_soil_sensor_count: site_soil_sensor_count,
-      site_side_motor_count: site_side_motor_count,
-      site_top_motor_count: site_top_motor_count,
-      site_actuator_count: site_actuator_count,
-      site_pump_count: site_pump_count,
-      site_valve_count: site_valve_count,
-      site_cctv_count: site_cctv_count,
-      site_set_alarm_enable: site_set_alarm_enable,
-      site_set_alarm_high: site_set_alarm_high,
-      site_set_alarm_low: site_set_alarm_low,
-      site_set_alarm_timer: site_set_alarm_timer,
-    })
+        sid: sid,
+        uid: req.params.userId,
+        site_name: site_name,
+        site_address: site_address,
+        site_gps_latitude: site_gps_latitude,
+        site_gps_longitude: site_gps_longitude,
+        site_th_sensor_count: site_th_sensor_count,
+        site_soil_sensor_count: site_soil_sensor_count,
+        site_side_motor_count: site_side_motor_count,
+        site_top_motor_count: site_top_motor_count,
+        site_actuator_count: site_actuator_count,
+        site_pump_count: site_pump_count,
+        site_valve_count: site_valve_count,
+        site_cctv_count: site_cctv_count,
+        site_set_alarm_enable: site_set_alarm_enable,
+        site_set_alarm_high: site_set_alarm_high,
+        site_set_alarm_low: site_set_alarm_low,
+        site_set_alarm_timer: site_set_alarm_timer,
+      })
       .then((result) => {
-        res.json({ result: result, error: null, data: null });
+        res.json({
+          result: result,
+          error: null,
+          data: null
+        });
       })
       .catch((err) => {
         console.error(err);
-        res.json({ result: false, error: err, data: null });
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
       });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
 router.get("/:userId/sites/:siteId", async (req, res, next) => {
   Sites.findAll({
-    where: { uid: req.params.userId, sid:req.params.siteId },
-  })
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId
+      },
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
     })
     .catch((err) => {
       console.error(err);
-      res.json({ error: null });
+      res.json({
+        error: null
+      });
     });
 });
 
 router.delete("/:userId/sites/:siteId", async (req, res, next) => {
   if (!empty(req.params.userId)) {
-    Sites.destroy({ where: { uid: req.params.userId, sid:req.params.siteId} })
+    Sites.destroy({
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId
+        }
+      })
       .then((result) => {
         res.json(result);
       })
@@ -238,7 +366,11 @@ router.delete("/:userId/sites/:siteId", async (req, res, next) => {
         console.error(err);
       });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
@@ -260,8 +392,7 @@ router.put("/:userId/sites/:siteId", async (req, res, next) => {
   let site_set_alarm_low = req.body.site_set_alarm_low;
   let site_set_alarm_timer = req.body.site_set_alarm_timer;
   if (!empty(req.params.siteId)) {
-    Sites.update(
-      {
+    Sites.update({
         site_name: site_name,
         site_address: site_address,
         site_gps_latitude: site_gps_latitude,
@@ -278,31 +409,44 @@ router.put("/:userId/sites/:siteId", async (req, res, next) => {
         site_set_alarm_high: site_set_alarm_high,
         site_set_alarm_low: site_set_alarm_low,
         site_set_alarm_timer: site_set_alarm_timer,
-      },
-      { where: {uid: req.params.userId, sid:req.params.siteId } }
-    )
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId
+        }
+      })
       .then((result) => {
         res.json(result);
       })
       .catch((err) => {
         console.error(err);
-        res.json({ result: false, error: err, data: null });
+        res.json({
+          result: false,
+          error: err,
+          data: null
+        });
       });
   } else {
-    res.json({ result: false, error: null, data: null });
+    res.json({
+      result: false,
+      error: null,
+      data: null
+    });
   }
 });
 
 router.get("/:userId/site/:siteId/sensors", async (req, res, next) => {
-    Sensors.findAll({})
-      .then((result) => {
-        // res.json({"data":result, test: "test", error: null})
-        res.json(result);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.json({ error: null });
+  Sensors.findAll({})
+    .then((result) => {
+      // res.json({"data":result, test: "test", error: null})
+      res.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({
+        error: null
       });
-  });
+    });
+});
 
 module.exports = router;
