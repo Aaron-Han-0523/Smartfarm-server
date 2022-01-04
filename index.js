@@ -13,52 +13,14 @@ let sequelize = require("./models/index").sequelize;
 let app = express();
 sequelize.sync();
 
-///sql
-
 var mysql = require("mysql");
 var connection = mysql.createConnection({
   username: "root",
   password: "root",
   database: "smartfarm",
   host: "127.0.0.1",
-  multipleStatements: true,
+  port: "3306",
 });
-function sqlUpdate(datas) {
-  var keys = Object.keys(datas);
-
-  connection.connect(function (err) {
-    if (err) throw err;
-    console.log("Connected!");
-    for (let i = 2; i < datas.length; i++) {
-      const sensor_id = keys[i];
-      const sid = "sid";
-      const uid = "test";
-      const time_stamp = datas["t"];
-      const value = datas[i];
-      connection
-        .query("insert into smartfarm.trends values (?, ?, ?, ?, ?)", [
-          sensor_id,
-          sid,
-          uid,
-          time_stamp,
-          value,
-        ])
-        .then((result) => {
-          res.json({
-            data: result,
-            test: "test",
-            error: null,
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          res.json({
-            error: null,
-          });
-        });
-    }
-  });
-}
 
 //// mqtt
 //https://yonghyunlee.gitlab.io/node/node-mqtt/
@@ -86,10 +48,10 @@ function mqttData() {
     // console.log("message is " + message);
     // console.log("topic is " + topic);
 
-    var data = JSON.parse(message.toString());
-    // console.log(data);
+    var datas = JSON.parse(message.toString());
+    // console.log(datas);
     // console.log(data["temp_1"]);
-    sqlUpdate(data);
+    sqlUpdate(datas);
     if (count != 0) {
       client.end();
       count = 0;
@@ -102,6 +64,48 @@ function mqttData() {
 
 ///sql
 
+
+
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log("sql Connected!");
+});
+
+function sqlUpdate(datas) {
+  var keys = Object.keys(datas);
+  console.log("Connected!");
+
+  for (let i = 2; i < keys.length; i++) {
+    console.log(datas);
+    // console.log(keys[i]);
+    // console.log(datas["t"]);
+    // console.log(datas[keys[i]]);
+    let sensor_id = (keys[i] + "_" + i).toString();
+    console.log(sensor_id);
+    let sid = "sid";
+    let uid = "test";
+    let time_stamp = datas["t"].toString();
+    let value = datas[keys[i]].toString();
+    console.log("!!!!!!!!!!!!hi!!!!!!!!!!!");
+    connection.query(
+      "insert into trends values (?,?,?,?,?);",
+      [sensor_id, sid, uid, time_stamp, value],
+      function (error, results) {
+        console.log("results");
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(results);
+          res.json(results);
+        }
+      }
+    );
+    console.log("!!!!!!!!!!!!bye!!!!!!!!!!!");
+  }
+  // console.log(results);
+}
+
+//// run
 mqttData();
 
 setInterval(() => {
