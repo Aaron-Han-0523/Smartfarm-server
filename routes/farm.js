@@ -10,14 +10,32 @@ const stringify = require("json-stringify-pretty-compact"); //json 값을 문자
 
 let router = express.Router();
 
-const { User, Trends, Motors } = require("../models");
-const { Sites } = require("../models");
-const { Sensors } = require("../models");
-const { Cctvs } = require("../models");
-const { Events } = require("../models");
-const { Pumps } = require("../models");
-const { Valves } = require("../models");
-const { Actuators } = require("../models");
+const {
+  User,
+  Trends,
+  Motors
+} = require("../models");
+const {
+  Sites
+} = require("../models");
+const {
+  Sensors
+} = require("../models");
+const {
+  Cctvs
+} = require("../models");
+const {
+  Events
+} = require("../models");
+const {
+  Pumps
+} = require("../models");
+const {
+  Valves
+} = require("../models");
+const {
+  Actuators
+} = require("../models");
 
 // testimport DB // king
 
@@ -46,10 +64,10 @@ router.post("/login", async (req, res, next) => {
   let password = req.body.password;
   if (!empty(uid) && !empty(password)) {
     User.findOne({
-      where: {
-        uid: uid,
-      },
-    })
+        where: {
+          uid: uid,
+        },
+      })
       .then((results) => {
         bcrypt.compare(password, results.password, (error, result) => {
           if (result) {
@@ -108,10 +126,10 @@ router.post("/account", async (req, res, next) => {
     bcrypt.hash(password, saltRounds, (error, hash) => {
       password = hash;
       User.create({
-        uid: uid,
-        password: password,
-        sid: sid,
-      })
+          uid: uid,
+          password: password,
+          sid: sid,
+        })
         .then((result) => {
           res.json({
             result: result,
@@ -139,10 +157,10 @@ router.post("/account", async (req, res, next) => {
 
 router.get("/:userId", async (req, res, next) => {
   User.findAll({
-    where: {
-      uid: req.params.userId,
-    },
-  })
+      where: {
+        uid: req.params.userId,
+      },
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
@@ -159,17 +177,14 @@ router.put("/:userId", async (req, res, next) => {
   let uid = req.body.uid;
   let sid = req.body.sid_base;
   if (!empty(req.params.userId)) {
-    User.update(
-      {
+    User.update({
         uid: uid,
         sid: sid,
-      },
-      {
+      }, {
         where: {
           uid: req.params.userId,
         },
-      }
-    )
+      })
       .then((result) => {
         res.json({
           result: result,
@@ -198,16 +213,13 @@ router.put("/:userId/password", async (req, res, next) => {
   let password = req.body.password;
   bcrypt.hash(password, saltRounds, (error, hash) => {
     password = hash;
-    User.update(
-      {
+    User.update({
         password: password,
-      },
-      {
+      }, {
         where: {
           uid: req.params.userId,
         },
-      }
-    )
+      })
       .then((result) => {
         res.json({
           result: result,
@@ -229,10 +241,10 @@ router.put("/:userId/password", async (req, res, next) => {
 router.delete("/:userId", async (req, res, next) => {
   if (!empty(req.params.userId)) {
     User.destroy({
-      where: {
-        uid: req.params.userId,
-      },
-    })
+        where: {
+          uid: req.params.userId,
+        },
+      })
       .then((result) => {
         res.json(result);
       })
@@ -284,25 +296,25 @@ router.post("/:userId/sites", async (req, res, next) => {
 
   if (!empty(req.params.userId)) {
     Sites.create({
-      sid: sid,
-      uid: req.params.userId,
-      site_name: site_name,
-      site_address: site_address,
-      site_gps_latitude: site_gps_latitude,
-      site_gps_longitude: site_gps_longitude,
-      site_th_sensor_count: site_th_sensor_count,
-      site_soil_sensor_count: site_soil_sensor_count,
-      site_side_motor_count: site_side_motor_count,
-      site_top_motor_count: site_top_motor_count,
-      site_actuator_count: site_actuator_count,
-      site_pump_count: site_pump_count,
-      site_valve_count: site_valve_count,
-      site_cctv_count: site_cctv_count,
-      site_set_alarm_enable: site_set_alarm_enable,
-      site_set_alarm_high: site_set_alarm_high,
-      site_set_alarm_low: site_set_alarm_low,
-      site_set_alarm_timer: site_set_alarm_timer,
-    })
+        sid: sid,
+        uid: req.params.userId,
+        site_name: site_name,
+        site_address: site_address,
+        site_gps_latitude: site_gps_latitude,
+        site_gps_longitude: site_gps_longitude,
+        site_th_sensor_count: site_th_sensor_count,
+        site_soil_sensor_count: site_soil_sensor_count,
+        site_side_motor_count: site_side_motor_count,
+        site_top_motor_count: site_top_motor_count,
+        site_actuator_count: site_actuator_count,
+        site_pump_count: site_pump_count,
+        site_valve_count: site_valve_count,
+        site_cctv_count: site_cctv_count,
+        site_set_alarm_enable: site_set_alarm_enable,
+        site_set_alarm_high: site_set_alarm_high,
+        site_set_alarm_low: site_set_alarm_low,
+        site_set_alarm_timer: site_set_alarm_timer,
+      })
       .then((result) => {
         res.json({
           result: result,
@@ -329,11 +341,11 @@ router.post("/:userId/sites", async (req, res, next) => {
 
 router.get("/:userId/sites/:siteId", async (req, res, next) => {
   Sites.findAll({
-    where: {
-      uid: req.params.userId,
-      sid: req.params.siteId,
-    },
-  })
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
@@ -349,11 +361,11 @@ router.get("/:userId/sites/:siteId", async (req, res, next) => {
 router.delete("/:userId/sites/:siteId", async (req, res, next) => {
   if (!empty(req.params.userId)) {
     Sites.destroy({
-      where: {
-        uid: req.params.userId,
-        sid: req.params.siteId,
-      },
-    })
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+        },
+      })
       .then((result) => {
         res.json(result);
       })
@@ -387,8 +399,7 @@ router.put("/:userId/sites/:siteId", async (req, res, next) => {
   let site_set_alarm_low = req.body.site_set_alarm_low;
   let site_set_alarm_timer = req.body.site_set_alarm_timer;
   if (!empty(req.params.siteId)) {
-    Sites.update(
-      {
+    Sites.update({
         site_name: site_name,
         site_address: site_address,
         site_gps_latitude: site_gps_latitude,
@@ -405,14 +416,12 @@ router.put("/:userId/sites/:siteId", async (req, res, next) => {
         site_set_alarm_high: site_set_alarm_high,
         site_set_alarm_low: site_set_alarm_low,
         site_set_alarm_timer: site_set_alarm_timer,
-      },
-      {
+      }, {
         where: {
           uid: req.params.userId,
           sid: req.params.siteId,
         },
-      }
-    )
+      })
       .then((result) => {
         res.json(result);
       })
@@ -455,12 +464,12 @@ router.get(
   "/:userId/site/:siteId/sensors/:sensorId",
   async (req, res, next) => {
     Sensors.findAll({
-      where: {
-        uid: req.params.userId,
-        sid: req.params.siteId,
-        sensor_id: req.params.sensorId,
-      },
-    })
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          sensor_id: req.params.sensorId,
+        },
+      })
       .then((result) => {
         res.json({
           data: result,
@@ -481,13 +490,13 @@ router.get(
   "/:userId/site/:siteId/sensors/:sensorId/trends",
   async (req, res, next) => {
     Trends.findAll({
-      attributes: ["time_stamp", "value"],
-      where: {
-        uid: req.params.userId,
-        sid: req.params.siteId,
-        sensor_id: req.params.sensorId,
-      },
-    })
+        attributes: ["time_stamp", "value"],
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          sensor_id: req.params.sensorId,
+        },
+      })
       .then((result) => {
         res.json({
           data: result,
@@ -509,12 +518,12 @@ router.get(
 
   async (req, res, next) => {
     Motors.findAll({
-      where: {
-        uid: req.params.userId,
-        sid: req.params.siteId,
-        motor_type: "side",
-      },
-    })
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          motor_type: "side",
+        },
+      })
       .then((result) => {
         res.json({
           data: result,
@@ -536,19 +545,16 @@ router.put(
   async (req, res, next) => {
     let motor_type = req.body.motor_type;
     let motor_name = req.body.motor_name;
-    Motors.update(
-      {
+    Motors.update({
         motor_type: motor_type,
         motor_name: motor_name,
-      },
-      {
+      }, {
         where: {
           uid: req.params.userId,
           sid: req.params.siteId,
           motor_type: "side",
         },
-      }
-    )
+      })
       .then((result) => {
         res.json({
           data: result,
@@ -570,20 +576,17 @@ router.put(
   async (req, res, next) => {
     // let motor_type = req.body.motor_type;
     let motor_name = req.body.motor_name;
-    Motors.update(
-      {
+    Motors.update({
         // motor_type: motor_type,
         motor_name: motor_name,
-      },
-      {
+      }, {
         where: {
           uid: req.params.userId,
           sid: req.params.siteId,
           motor_id: req.params.motorId,
           motor_type: "side",
         },
-      }
-    )
+      })
       .then((result) => {
         res.json({
           data: result,
@@ -605,12 +608,12 @@ router.get(
   async (req, res, next) => {
     if (!empty(req.params.userId)) {
       Motors.findAll({
-        where: {
-          uid: req.params.userId,
-          sid: req.params.siteId,
-          motor_type: "top",
-        },
-      })
+          where: {
+            uid: req.params.userId,
+            sid: req.params.siteId,
+            motor_type: "top",
+          },
+        })
         .then((result) => {
           res.json({
             data: result,
@@ -640,11 +643,11 @@ router.get(
 
 router.get("/:userId/site/:siteId/controls/valves", async (req, res, next) => {
   Valves.findAll({
-    where: {
-      uid: req.params.userId,
-      sid: req.params.siteId,
-    },
-  })
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
@@ -664,20 +667,17 @@ router.put(
     let valve_type = req.body.valve_type;
     let valve_name = req.body.valve_name;
     if (!empty(req.params.valvesId)) {
-      Valves.update(
-        {
+      Valves.update({
           valve_id: valve_id,
           valve_type: valve_type,
           valve_name: valve_name,
-        },
-        {
+        }, {
           where: {
             uid: req.params.userId,
             sid: req.params.siteId,
             valve_id: req.params.valvesId,
           },
-        }
-      )
+        })
         .then((result) => {
           res.json(result);
         })
@@ -707,11 +707,11 @@ router.put(
 
 router.get("/:userId/site/:siteId/cctvs", async (req, res, next) => {
   Cctvs.findAll({
-    where: {
-      uid: req.params.userId,
-      sid: req.params.siteId,
-    },
-  })
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
@@ -732,21 +732,18 @@ router.put(
     let cctv_name = req.body.cctv_name;
     let cctv_url = req.body.cctv_url;
     if (!empty(req.params.cctvId)) {
-      Cctvs.update(
-        {
+      Cctvs.update({
           cctv_id: cctv_id,
           cctv_type: cctv_type,
           cctv_name: cctv_name,
           cctv_url: cctv_url,
-        },
-        {
+        }, {
           where: {
             uid: req.params.userId,
             sid: req.params.siteId,
             cctv_id: req.params.cctvId,
           },
-        }
-      )
+        })
         .then((result) => {
           res.json(result);
         })
@@ -775,12 +772,12 @@ router.put(
  */
 
 router.get("/:userId/site/:siteId/settings", async (req, res, next) => {
-  Events.findAll({
-    where: {
-      uid: req.params.userId,
-      sid: req.params.siteId,
-    },
-  })
+  Sites.findAll({
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
@@ -794,23 +791,22 @@ router.get("/:userId/site/:siteId/settings", async (req, res, next) => {
 });
 
 router.put("/:userId/site/:siteId/settings", async (req, res, next) => {
-  let time_stamp = req.body.time_stamp;
-  let event_saverity = req.body.event_saverity;
-  let alarm_code = req.body.alarm_code;
+  let site_set_alarm_enable = req.body.site_set_alarm_enable;
+  let site_set_alarm_high = req.body.site_set_alarm_high;
+  let site_set_alarm_low = req.body.site_set_alarm_low;
+  let site_set_alarm_timer = req.body.site_set_alarm_timer;
   if (!empty(req.params.siteId)) {
-    Events.update(
-      {
-        time_stamp: time_stamp,
-        event_saverity: event_saverity,
-        alarm_code: alarm_code,
-      },
-      {
+    Events.update({
+        site_set_alarm_enable: site_set_alarm_enable,
+        site_set_alarm_high: site_set_alarm_high,
+        site_set_alarm_low: site_set_alarm_low,
+        site_set_alarm_timer: site_set_alarm_timer,
+      }, {
         where: {
           uid: req.params.userId,
           sid: req.params.siteId,
         },
-      }
-    )
+      })
       .then((result) => {
         res.json(result);
       })
@@ -838,11 +834,11 @@ mark
 // 관수 펌프 제어 상태 조회
 router.get("/:userId/site/:siteId/controls/pumps", async (req, res, next) => {
   Pumps.findAll({
-    where: {
-      uid: req.params.userId,
-      sid: req.params.siteId,
-    },
-  })
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
     .then((result) => {
       res.json(result);
     })
@@ -861,19 +857,16 @@ router.put(
     let pump_type = req.body.pump_type;
     let pump_name = req.body.pump_name;
     if (!empty(req.params.pumpId)) {
-      Pumps.update(
-        {
+      Pumps.update({
           pump_type: pump_type,
           pump_name: pump_name,
-        },
-        {
+        }, {
           where: {
             uid: req.params.userId,
             sid: req.params.siteId,
             pump_id: req.params.pumpId,
           },
-        }
-      )
+        })
         .then((result) => {
           res.json(result);
         })
@@ -900,11 +893,11 @@ router.get(
   "/:userId/site/:siteId/controls/actuators",
   async (req, res, next) => {
     Actuators.findAll({
-      where: {
-        uid: req.params.userId,
-        sid: req.params.siteId,
-      },
-    })
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+        },
+      })
       .then((result) => {
         res.json(result);
       })
@@ -924,19 +917,16 @@ router.put(
     let acturator_type = req.body.acturator_type;
     let acturator_name = req.body.acturator_name;
     if (!empty(req.params.actuatorId)) {
-      Actuators.update(
-        {
+      Actuators.update({
           acturator_type: acturator_type,
           acturator_name: acturator_name,
-        },
-        {
+        }, {
           where: {
             uid: req.params.userId,
             sid: req.params.siteId,
             motor_id: req.params.actuatorId,
           },
-        }
-      )
+        })
         .then((result) => {
           res.json(result);
         })
@@ -964,19 +954,16 @@ router.put(
   async (req, res, next) => {
     let motor_name = req.body.motor_name;
     if (!empty(req.params.siteId)) {
-      Motors.update(
-        {
+      Motors.update({
           motor_name: motor_name,
           // motor_id: req.params.motorId
-        },
-        {
+        }, {
           where: {
             uid: req.params.userId,
             sid: req.params.siteId,
             motor_type: "top",
           },
-        }
-      )
+        })
         .then((result) => {
           res.json(result);
         })
@@ -1004,21 +991,18 @@ router.put(
   async (req, res, next) => {
     let motor_name = req.body.motor_name;
     if (!empty(req.params.motorId)) {
-      Motors.update(
-        {
+      Motors.update({
           // motor_type: motor_type,
           motor_name: motor_name,
           // motor_id: req.params.motorId,
-        },
-        {
+        }, {
           where: {
             uid: req.params.userId,
             sid: req.params.siteId,
             motor_id: req.params.motorId,
             motor_type: "top",
           },
-        }
-      )
+        })
         .then((result) => {
           res.json(result);
         })
