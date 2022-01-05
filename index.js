@@ -135,7 +135,7 @@ mqttData();
 
 setInterval(() => {
   mqttData();
-}, 3000);
+}, 600000);
 // 600000
 //// REST api
 app.use(
