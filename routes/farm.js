@@ -209,6 +209,52 @@ router.put("/:userId", async (req, res, next) => {
   }
 });
 
+// 현재 비밀번호 확인 
+router.post("/login/:userId/checkpw", async (req, res, next) => {
+  let password = req.body.password;
+  if (!empty(password)) {
+    User.findOne({
+        where: {
+          uid: req.params.userId,
+        },
+      })
+      .then((results) => {
+        bcrypt.compare(password, results.password, (error, result) => {
+          if (result) {
+            req.session.loginData = {
+              // uid: uid,
+              password: password,
+            };
+            req.session.save((error) => {
+              if (error) console.log(error);
+            });
+            res.json({
+              results,
+              result: true,
+            });
+          } else {
+            res.json({
+              result: false,
+              error: null,
+              data: null,
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null,
+    });
+  }
+});
+
+
+
 router.put("/:userId/password", async (req, res, next) => {
   let password = req.body.password;
   bcrypt.hash(password, saltRounds, (error, hash) => {
@@ -772,7 +818,7 @@ router.put(
  */
 
 router.get("/:userId/site/:siteId/settings", async (req, res, next) => {
-  Sites.findAll({
+  Events.findAll({
       where: {
         uid: req.params.userId,
         sid: req.params.siteId,

@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             time_stamp: {
                 type: DataTypes.STRING(255),
+                primaryKey: true,
             },
             value: {
                 type: DataTypes.STRING(255),
