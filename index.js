@@ -24,40 +24,43 @@ function mqttData() {
 
 
 
-//// REST api
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
-app.use(cookieParser());
-app.use(
-  session({
-    secret: "testSecret",
-    resave: false,
-    saveUninitialized: false,
-    store: new fileStore(),
-  })
-);
+  //// REST api
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    })
+  );
+  app.use(cookieParser());
+  app.use(
+    session({
+      secret: "testSecret",
+      resave: false,
+      saveUninitialized: false,
+      store: new fileStore(),
+      cookie: {
+        secure: true,
+      },
+    })
+  );
 
-app
-  // .use(express.static(path.join(__dirname, 'upload')))
-  .use(static(path.join(__dirname, "upload")))
-  .use("/api/", router)
-  .use("/farm/", farmRouter)
-  .use("/punchlist/", punchListRouter)
-  .use("/summury/", summuryRouter)
-  .set("views", path.join(__dirname, "views"))
-  .set("view engine", "ejs")
-  .get("/", (req, res) => res.render("pages/index"))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+  app
+    // .use(express.static(path.join(__dirname, 'upload')))
+    .use(static(path.join(__dirname, "upload")))
+    .use("/api/", router)
+    .use("/farm/", farmRouter)
+    .use("/punchlist/", punchListRouter)
+    .use("/summury/", summuryRouter)
+    .set("views", path.join(__dirname, "views"))
+    .set("view engine", "ejs")
+    .get("/", (req, res) => res.render("pages/index"))
+    .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 
   //// mqtt
-//https://yonghyunlee.gitlab.io/node/node-mqtt/
-// mysql connect
-//https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
+  //https://yonghyunlee.gitlab.io/node/node-mqtt/
+  // mysql connect
+  //https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
 
 
   var count = 0;
