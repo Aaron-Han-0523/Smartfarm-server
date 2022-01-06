@@ -75,7 +75,6 @@ function sqlUpdate(datas) {
   for (let i = 2; i < keys.length; i++) {
     console.log(datas);
     let sensor_id = (keys[i]).toString();
-    console.log(sensor_id);
     let sid = "sid";
     let uid = "test";
     let time_stamp = datas["t"].toString();
