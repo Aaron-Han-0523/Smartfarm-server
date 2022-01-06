@@ -14,13 +14,6 @@ let app = express();
 sequelize.sync();
 
 var mysql = require("mysql");
-// var connection = mysql.createConnection({
-//   username: "root",
-//   password: "root",
-//   database: "smartfarm",
-//   host: "localhost",
-//   // port: "3306",
-// });
 
 var connection = mysql.createConnection({
   host: "127.0.0.1",
@@ -74,37 +67,6 @@ function mqttData() {
 
 ///sql
 
-// connection.connect(function (err) {
-//   if (err) throw err;
-//   console.log("sql Connected!");
-// });
-
-// function sqlUpdate(datas) {
-//   var keys = Object.keys(datas);
-//   console.log("Connected!");
-
-//   for (let i = 2; i < keys.length; i++) {
-//     console.log(datas);
-//     // console.log(keys[i]);
-//     // console.log(datas["t"]);
-//     // console.log(datas[keys[i]]);
-//     let sensor_id = (keys[i] + "_" + i).toString();
-//     console.log(sensor_id);
-//     let sid = "sid";
-//     let uid = "test";
-//     let time_stamp = datas["t"].toString();
-//     let value = datas[keys[i]].toString();
-//     console.log("!!!!!!!!!!!!hi!!!!!!!!!!!");
-//     Trends.update({
-//       sid: sid,
-//       uid: uid,
-//       time_stamp: time_stamp,
-//       value: value,
-//     })
-
-//   }
-//   // console.log(results);
-// }
 
 function sqlUpdate(datas) {
   var keys = Object.keys(datas);
@@ -112,10 +74,7 @@ function sqlUpdate(datas) {
 
   for (let i = 2; i < keys.length; i++) {
     console.log(datas);
-    // console.log(keys[i]);
-    // console.log(datas["t"]);
-    // console.log(datas[keys[i]]);
-    let sensor_id = (keys[i] + "_" + i).toString();
+    let sensor_id = (keys[i]).toString();
     console.log(sensor_id);
     let sid = "sid";
     let uid = "test";
