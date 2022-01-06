@@ -71,9 +71,7 @@ function mqttData() {
 function sqlUpdate(datas) {
   var keys = Object.keys(datas);
   console.log("Connected!");
-
   for (let i = 2; i < keys.length; i++) {
-    console.log(datas);
     let sensor_id = (keys[i]).toString();
     let sid = "sid";
     let uid = "test";
