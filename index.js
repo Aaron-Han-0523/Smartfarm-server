@@ -80,13 +80,11 @@ function sqlUpdate(datas) {
     let uid = "test";
     let time_stamp = datas["t"].toString();
     let value = datas[keys[i]].toString();
-    console.log("!!!!!!!!!!!!hi!!!!!!!!!!!");
     connection.query(
       "insert into trends values (?,?,?,?,?);",
       [sensor_id, sid, uid, time_stamp, value],
 
     );
-    console.log("!!!!!!!!!!!!bye!!!!!!!!!!!");
   }
   // console.log(results);
 }
