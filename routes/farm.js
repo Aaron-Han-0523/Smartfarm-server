@@ -64,7 +64,6 @@ router.post("/login", (req, res, next) => {
           if (result) {
             req.session.loginData = {
               uid: userId,
-              password: password,
             };
             req.session.save((error) => {
               if (error) console.log(error);
@@ -108,7 +107,6 @@ router.route("/logout").get(
         }
         console.log("세션 삭제 성공");
         res.json({
-          results,
           result: true,
         });
       }); //세션정보 삭제
