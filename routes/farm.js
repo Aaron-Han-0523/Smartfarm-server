@@ -59,20 +59,29 @@ router.get("/loginCheck", (req, res) => {
   }
 });
 
-router.post("/login", async (req, res, next) => {
-  let uid = req.body.uid;
+router.post("/login", (req, res, next) => {
+  let userId = req.body.uid;
   let password = req.body.password;
-  if (!empty(uid) && !empty(password)) {
+  if (!empty(userId) && !empty(password)) {
     User.findOne({
         where: {
-          uid: uid,
+          uid: userId,
         },
       })
       .then((results) => {
+        if (!results) {
+          res.json({
+            result: false,
+            error: null,
+            data: null,
+          });
+          console.log('아이디가 없음');
+          // res.status(400).send("error");
+        }
         bcrypt.compare(password, results.password, (error, result) => {
           if (result) {
             req.session.loginData = {
-              uid: uid,
+              uid: userId,
               password: password,
             };
             req.session.save((error) => {
@@ -100,6 +109,7 @@ router.post("/login", async (req, res, next) => {
       error: null,
       data: null,
     });
+    // res.status(400).send("ID/Password is wrong");
   }
 });
 
