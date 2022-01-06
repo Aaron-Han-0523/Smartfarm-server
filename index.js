@@ -10,33 +10,55 @@ const farmRouter = require("./routes/farm");
 const punchListRouter = require("./routes/punchList");
 const summuryRouter = require("./routes/summury");
 let sequelize = require("./models/index").sequelize;
+const fileStore = require("session-file-store")(session);
 let app = express();
 sequelize.sync();
-
-var mysql = require("mysql");
-
-var connection = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
-  password: "root",
-  database: "smartfarm",
-  multipleStatements: true,
-});
-
-//// mqtt
-//https://yonghyunlee.gitlab.io/node/node-mqtt/
-// mysql connect
-//https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
-const {
-  Trends
-} = require("./models");
 var mqtt = require("mqtt");
+var mysql = require("mysql");
 
 function mqttData() {
   const options = {
     host: "127.0.0.1",
     port: 1883,
   };
+
+
+
+//// REST api
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(
+  session({
+    secret: "testSecret",
+    resave: false,
+    saveUninitialized: false,
+    store: new fileStore(),
+  })
+);
+
+app
+  // .use(express.static(path.join(__dirname, 'upload')))
+  .use(static(path.join(__dirname, "upload")))
+  .use("/api/", router)
+  .use("/farm/", farmRouter)
+  .use("/punchlist/", punchListRouter)
+  .use("/summury/", summuryRouter)
+  .set("views", path.join(__dirname, "views"))
+  .set("view engine", "ejs")
+  .get("/", (req, res) => res.render("pages/index"))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+
+  //// mqtt
+//https://yonghyunlee.gitlab.io/node/node-mqtt/
+// mysql connect
+//https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
+
 
   var count = 0;
 
@@ -66,7 +88,13 @@ function mqttData() {
 }
 
 ///sql
-
+var connection = mysql.createConnection({
+  host: "127.0.0.1",
+  user: "root",
+  password: "root",
+  database: "smartfarm",
+  multipleStatements: true,
+});
 
 function sqlUpdate(datas) {
   var keys = Object.keys(datas);
@@ -93,33 +121,3 @@ setInterval(() => {
   mqttData();
 }, 600000);
 // 600000
-//// REST api
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
-app.use(cookieParser());
-app.use(
-  session({
-    key: "loginData",
-    secret: "testSecret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      expires: 60 * 60 * 24,
-    },
-  })
-);
-app
-  // .use(express.static(path.join(__dirname, 'upload')))
-  .use(static(path.join(__dirname, "upload")))
-  .use("/api/", router)
-  .use("/farm/", farmRouter)
-  .use("/punchlist/", punchListRouter)
-  .use("/summury/", summuryRouter)
-  .set("views", path.join(__dirname, "views"))
-  .set("view engine", "ejs")
-  .get("/", (req, res) => res.render("pages/index"))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
