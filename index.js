@@ -91,7 +91,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: new fileStore(),
-    cookie: {	//세션 쿠키 설정 (세션 관리 시 클라이언트에 보내는 쿠키)
+    cookie: { //세션 쿠키 설정 (세션 관리 시 클라이언트에 보내는 쿠키)
       httpOnly: false,
       Secure: true
     }
