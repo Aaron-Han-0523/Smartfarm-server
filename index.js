@@ -9,7 +9,7 @@ const router = require("./routes/user"); //라우터 모듈 등록 (라우터 �
 const farmRouter = require("./routes/farm");
 const punchListRouter = require("./routes/punchList");
 const summuryRouter = require("./routes/summury");
-const schedule = require('node-schedule');
+const schedule = require("node-schedule");
 let sequelize = require("./models/index").sequelize;
 const fileStore = require("session-file-store")(session);
 let app = express();
@@ -68,27 +68,28 @@ function mqttData() {
     host: "127.0.0.1",
     port: 1883,
   };
-  var count = 0;
+  var bool = false;
 
   const client = mqtt.connect("mqtt://broker.mqttdashboard.com:1883", options);
-  client.subscribe("/sf/e0000001/data");
+  client.subscribe("/sf/e0000001/#");
   client.on("connect", function () {
     console.log("connected  " + client.connected);
   });
   client.on("message", function (topic, message, packet) {
-    console.log(count);
-    // console.log("message is " + message);
+    console.log(bool);
+    console.log("message is " + message);
     // console.log("topic is " + topic);
 
-    var datas = JSON.parse(message.toString());
+    // var datas = JSON.parse(message.toString());
     // console.log(datas);
     // console.log(data["temp_1"]);
     schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
-      count++;
+      bool = true;
     });
-    if (count != 0) {
+    if (bool == true) {
       sqlUpdate(datas);
-      count = 0;
+      bool = false;
+      console.log(bool);
       console.log("sql");
     }
     console.log("end!!!!!!!!!");
