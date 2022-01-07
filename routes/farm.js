@@ -98,7 +98,7 @@ router.post("/logout", (req, res) => {
   console.log("/loginout 라우팅 함수호출 됨");
   console.log(req.session.loginData);
   console.log(req.session);
-  console.log('@@@@@@@@@@@@@@',req);
+  // console.log('@@@@@@@@@@@@@@',req);
   if (req.session.loginData) {
     console.log("로그아웃 처리");
     req.session.destroy(function (err) {
