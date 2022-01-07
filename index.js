@@ -9,6 +9,7 @@ const router = require("./routes/user"); //라우터 모듈 등록 (라우터 �
 const farmRouter = require("./routes/farm");
 const punchListRouter = require("./routes/punchList");
 const summuryRouter = require("./routes/summury");
+const schedule = require('node-schedule');
 let sequelize = require("./models/index").sequelize;
 const fileStore = require("session-file-store")(session);
 let app = express();
@@ -73,7 +74,6 @@ function mqttData() {
   client.subscribe("/sf/e0000001/data");
   client.on("connect", function () {
     console.log("connected  " + client.connected);
-    count++;
   });
   client.on("message", function (topic, message, packet) {
     console.log(count);
