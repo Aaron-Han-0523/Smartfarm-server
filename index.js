@@ -21,48 +21,6 @@ function mqttData() {
     host: "127.0.0.1",
     port: 1883,
   };
-
-
-
-  //// REST api
-  app.use(
-    cors({
-      origin: true,
-      credentials: true,
-    })
-  );
-  app.use(cookieParser());
-  app.use(
-    session({
-      secret: "testSecret",
-      resave: false,
-      saveUninitialized: false,
-      store: new fileStore(),
-      cookie: {
-        secure: true,
-      },
-    })
-  );
-
-  app
-    // .use(express.static(path.join(__dirname, 'upload')))
-    .use(static(path.join(__dirname, "upload")))
-    .use("/api/", router)
-    .use("/farm/", farmRouter)
-    .use("/punchlist/", punchListRouter)
-    .use("/summury/", summuryRouter)
-    .set("views", path.join(__dirname, "views"))
-    .set("view engine", "ejs")
-    .get("/", (req, res) => res.render("pages/index"))
-    .listen(PORT, () => console.log(`Listening on ${PORT}`));
-
-
-  //// mqtt
-  //https://yonghyunlee.gitlab.io/node/node-mqtt/
-  // mysql connect
-  //https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
-
-
   var count = 0;
 
   const client = mqtt.connect("mqtt://broker.mqttdashboard.com:1883", options);
@@ -103,24 +61,63 @@ function sqlUpdate(datas) {
   var keys = Object.keys(datas);
   console.log("Connected!");
   for (let i = 2; i < keys.length; i++) {
-    let sensor_id = (keys[i]).toString();
+    let sensor_id = keys[i].toString();
     let sid = "sid";
     let uid = "test";
     let time_stamp = datas["t"].toString();
     let value = datas[keys[i]].toString();
-    connection.query(
-      "insert into trends values (?,?,?,?,?);",
-      [sensor_id, sid, uid, time_stamp, value],
-
-    );
+    connection.query("insert ignore into trends values (?,?,?,?,?);", [
+      sensor_id,
+      sid,
+      uid,
+      time_stamp,
+      value,
+    ]);
   }
   // console.log(results);
 }
 
-//// run
-mqttData();
+//// REST api
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(
+  session({
+    secret: "testSecret",
+    resave: false,
+    saveUninitialized: false,
+    store: new fileStore(),
+    cookie: {	//세션 쿠키 설정 (세션 관리 시 클라이언트에 보내는 쿠키)
+      httpOnly: false,
+      Secure: true
+    }
+  })
+);
 
-setInterval(() => {
-  mqttData();
-}, 600000);
-// 600000
+// run
+// mqttData();
+
+// setInterval(() => {
+//   mqttData();
+// }, 600000);
+
+app
+  // .use(express.static(path.join(__dirname, 'upload')))
+  .use(static(path.join(__dirname, "upload")))
+  .use("/api/", router)
+  .use("/farm/", farmRouter)
+  .use("/punchlist/", punchListRouter)
+  .use("/summury/", summuryRouter)
+  .set("views", path.join(__dirname, "views"))
+  .set("view engine", "ejs")
+  .get("/", (req, res) => res.render("pages/index"))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+//// mqtt
+//https://yonghyunlee.gitlab.io/node/node-mqtt/
+// mysql connect
+//https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
