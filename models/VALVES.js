@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(20),
         primaryKey: true,
       },
-      valve_type: {
+      valve_action: {
         type: DataTypes.STRING(255),
       },
       valve_name: {

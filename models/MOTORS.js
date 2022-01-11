@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
             },
             motor_type: {
                 type: DataTypes.STRING(255),
+              },
+            motor_action: {
+                type: DataTypes.STRING(255),
             },
             motor_name: {
                 type: DataTypes.STRING(255),
