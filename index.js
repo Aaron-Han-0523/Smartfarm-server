@@ -132,6 +132,7 @@ function sqlUpdate(datas) {
 // admin 서버키 가져오기
 var admin = require("firebase-admin");
 var serviceAccount = require("./config/smartfarm-f4f8a-firebase-adminsdk-dcwir-9352731a71.json");
+const isEmpty = require("is-empty");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -144,7 +145,9 @@ connection.query('select fcmtoken from users where uid=?',
     fcmtoken = results[0].fcmtoken;
     console.log('The fcmtoken is: ', fcmtoken);
 
-    pushAlarm();
+    if (!isEmpty(fcmtoken)) {
+      pushAlarm();
+    }
   });
 
 
