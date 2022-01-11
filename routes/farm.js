@@ -920,10 +920,10 @@ router.put("/:userId/site/:siteId/settings", async (req, res, next) => {
 });
 
 // 푸시알림 fcm
-router.post("/:userId/pushAlarm", async (req, res, next) => {
+router.put("/:userId/pushAlarm", async (req, res, next) => {
   let fcmtoken = req.body.fcmtoken;
   if (!empty(req.params.userId)) {
-    User.post({
+    User.update({
         fcmtoken: fcmtoken,
       }, {
         where: {
