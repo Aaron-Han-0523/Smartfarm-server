@@ -614,10 +614,12 @@ router.put(
   async (req, res, next) => {
     let motor_type = req.body.motor_type;
     let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action;
     Motors.update(
       {
         motor_type: motor_type,
         motor_name: motor_name,
+        motor_action:motor_action,
       },
       {
         where: {
@@ -648,10 +650,12 @@ router.put(
   async (req, res, next) => {
     // let motor_type = req.body.motor_type;
     let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action;
     Motors.update(
       {
         // motor_type: motor_type,
         motor_name: motor_name,
+        motor_action:motor_action,
       },
       {
         where: {
@@ -711,7 +715,7 @@ router.get(
 // sherry
 
 /**
- * INSERT INTO valves(valve_id, sid, uid, valve_type, valve_name)
+ * INSERT INTO valves(valve_id, sid, uid, valve_action, valve_name)
  VALUE('valve1', 'sid', 'test', '0', 'test1');
  * select * from valves;
  */
@@ -739,13 +743,13 @@ router.put(
   "/:userId/site/:siteId/controls/valves/:valvesId",
   async (req, res, next) => {
     let valve_id = req.body.valve_id;
-    let valve_type = req.body.valve_type;
+    let valve_action = req.body.valve_action;
     let valve_name = req.body.valve_name;
     if (!empty(req.params.valvesId)) {
       Valves.update(
         {
           valve_id: valve_id,
-          valve_type: valve_type,
+          valve_action: valve_action,
           valve_name: valve_name,
         },
         {
@@ -938,12 +942,12 @@ router.get("/:userId/site/:siteId/controls/pumps", async (req, res, next) => {
 router.put(
   "/:userId/site/:siteId/controls/pumps/:pumpId",
   async (req, res, next) => {
-    let pump_type = req.body.pump_type;
+    let pump_action = req.body.pump_action;
     let pump_name = req.body.pump_name;
     if (!empty(req.params.pumpId)) {
       Pumps.update(
         {
-          pump_type: pump_type,
+          pump_action: pump_action,
           pump_name: pump_name,
         },
         {
@@ -1043,10 +1047,12 @@ router.put(
   "/:userId/site/:siteId/controls/top/motors",
   async (req, res, next) => {
     let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action
     if (!empty(req.params.siteId)) {
       Motors.update(
         {
           motor_name: motor_name,
+          motor_action:motor_action,
           // motor_id: req.params.motorId
         },
         {
@@ -1083,10 +1089,12 @@ router.put(
   "/:userId/site/:siteId/controls/top/motors/:motorId",
   async (req, res, next) => {
     let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action
     if (!empty(req.params.motorId)) {
       Motors.update(
         {
           // motor_type: motor_type,
+          motor_action:motor_action,
           motor_name: motor_name,
           // motor_id: req.params.motorId,
         },
