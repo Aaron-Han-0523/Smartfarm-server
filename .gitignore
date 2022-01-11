@@ -16,6 +16,8 @@ npm-debug.log
 Dockerfile
 docker-compose.yml
 
+# fcm server key
+/config/smartfarm-f4f8a-firebase-adminsdk-dcwir-9352731a71.json
 
 ### Node ###
 # Logs

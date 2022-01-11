@@ -124,3 +124,49 @@ function sqlUpdate(datas) {
   }
   // console.log(results);
 }
+
+/////////////////////////////////////////////////////
+
+// 푸시알림 fcm
+
+// admin 서버키 가져오기
+var admin = require("firebase-admin");
+var serviceAccount = require("./config/smartfarm-f4f8a-firebase-adminsdk-dcwir-9352731a71.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+// sql로 저장된 token값 가져와서 푸시 알림 보내기
+connection.query('select fcmtoken from users where uid=?',
+  'test',
+  function test(error, results, fields) {
+    if (error) throw error;
+    fcmtoken = results[0].fcmtoken;
+    console.log('The fcmtoken is: ', fcmtoken);
+
+    pushAlarm();
+  });
+
+
+// 푸시알림 보내기
+async function pushAlarm(req, res) {
+  //디바이스의 토큰 값 
+  let deviceToken = fcmtoken;
+  let message = {
+    notification: {
+      title: 'fcm test',
+      body: 'fcm test',
+    },
+    token: deviceToken,
+  };
+
+  admin
+    .messaging()
+    .send(message)
+    .then(function (response) {
+      console.log('Successfully sent message: : ', response)
+    })
+    .catch(function (err) {
+      console.log('Error Sending message!!! : ', err)
+    })
+}
