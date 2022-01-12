@@ -191,18 +191,18 @@ function mqttData() {
 
     // 관수 on/off
     // TODO: 조건문 on/off 외에 예외 조건 처리 추가할 것
-    // console.log(pumps);
-    // if (pumps[0] != pump_1) {
-    //   pushAlarm('관수 On/Off 알림', '[푸시알림] 펌프 (#1)의 상태가' + pumps[0] + '에서' + pump_1 + '로 바뀌었습니다.');
-    //   pumps[0] = pump_1;
-    //   console.log('[푸시알림] 펌프 (#1)의 상태가' + pumps[0] + '에서' + pump_1 + '로 바뀌었습니다.');
-    // } else if (pumps[1] != pump_2) {
-    //   pushAlarm('관수 On/Off 알림', '[푸시알림] 펌프 (#2)의 상태가' + pumps[1] + '에서' + pump_2 + '로 바뀌었습니다.');
-    //   pumps[1] = pump_2;
-    //   console.log('[푸시알림] 펌프 (#2)의 상태가' + pumps[1] + '에서' + pump_2 + '로 바뀌었습니다.');
-    // } else {
-    //   console.log('[푸시알림] 펌프 변동이 없습니다.');
-    // }
+    console.log(pumps);
+    if (pumps[0] != pump_1) {
+      pushAlarm('관수 On/Off 알림', '[푸시알림] 펌프 (#1)의 상태가' + pumps[0] + '에서' + pump_1 + '로 바뀌었습니다.');
+      pumps[0] = pump_1;
+      console.log('[푸시알림] 펌프 (#1)의 상태가' + pumps[0] + '에서' + pump_1 + '로 바뀌었습니다.');
+    } else if (pumps[1] != pump_2) {
+      pushAlarm('관수 On/Off 알림', '[푸시알림] 펌프 (#2)의 상태가' + pumps[1] + '에서' + pump_2 + '로 바뀌었습니다.');
+      pumps[1] = pump_2;
+      console.log('[푸시알림] 펌프 (#2)의 상태가' + pumps[1] + '에서' + pump_2 + '로 바뀌었습니다.');
+    } else {
+      console.log('[푸시알림] 펌프 변동이 없습니다.');
+    }
 
     // 감우 경보 
     /*
