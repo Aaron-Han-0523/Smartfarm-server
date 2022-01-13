@@ -888,7 +888,7 @@ router.put("/:userId/site/:siteId/settings", async (req, res, next) => {
   let site_set_alarm_low = req.body.site_set_alarm_low;
   let site_set_alarm_timer = req.body.site_set_alarm_timer;
   if (!empty(req.params.siteId)) {
-    Events.update({
+    Sites.update({
         site_set_alarm_enable: site_set_alarm_enable,
         site_set_alarm_high: site_set_alarm_high,
         site_set_alarm_low: site_set_alarm_low,
