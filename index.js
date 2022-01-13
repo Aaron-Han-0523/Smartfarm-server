@@ -40,7 +40,7 @@ app.use(
 );
 
 // run
-mqttData();
+// mqttData();
 
 // setInterval(() => {
 //   mqttData();
