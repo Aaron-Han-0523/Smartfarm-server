@@ -1,7 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "USERS",
-    {
+    "USERS", {
       uid: {
         type: DataTypes.STRING(20),
         primaryKey: true,
@@ -12,8 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       sid_base: {
         type: DataTypes.STRING(20),
       },
-    },
-    {
+      fcmtoken: {
+        type: DataTypes.STRING(255),
+      },
+    }, {
       createdAt: false,
       updatedAt: false,
       tableName: "USERS",
