@@ -39,7 +39,6 @@ app.use(
   })
 );
 
-<<<<<<< HEAD
 // run
 // mqttData();
 
@@ -47,8 +46,6 @@ app.use(
 //   mqttData();
 // }, 600000);
 
-=======
->>>>>>> 770a46846050825b34a02d4b251434a1f5b7ed01
 app
   // .use(express.static(path.join(__dirname, 'upload')))
   .use(static(path.join(__dirname, "upload")))
@@ -334,52 +331,4 @@ function sqlUpdate(datas) {
     ]);
   }
   // console.log(results);
-<<<<<<< HEAD
-=======
-}
-
-// 설정 페이지에서 수정한 값 sql 업데이트 하기 
-async function sqlAlarmUpdate(datas) {
-  console.log("Connected!");
-
-  alarm_en = datas["alarm_en"];
-  alarm_high_temp = datas["alarm_high_temp"];
-  alarm_low_temp = datas["alarm_low_temp"];
-  watering_timer = datas["watering_timer"];
-
-  connection.query("update sites set site_set_alarm_enable = ?, site_set_alarm_high = ?, site_set_alarm_low = ?, site_set_alarm_timer = ? where uid = ?",
-    [alarm_en,
-      alarm_high_temp,
-      alarm_low_temp,
-      watering_timer,
-      uid,
-    ],
-    function test(error, results, fields) {
-      if (error) throw error;
-      console.log("update가 되었나요? 맞으면 1 안되면 0 :: ", results.message);
-    });
-}
-
-// 푸시알림 보내기
-async function pushAlarm(title, body) {
-  //디바이스의 토큰 값 
-  let deviceToken = fcmtoken;
-  let message = {
-    notification: {
-      title: title,
-      body: body,
-    },
-    token: deviceToken,
-  };
-
-  admin
-    .messaging()
-    .send(message)
-    .then(function (response) {
-      console.log('Successfully sent message: : ', response)
-    })
-    .catch(function (err) {
-      console.log('Error Sending message!!! : ', err)
-    })
->>>>>>> 770a46846050825b34a02d4b251434a1f5b7ed01
 }
