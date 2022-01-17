@@ -596,6 +596,35 @@ router.get(
 );
 
 router.get(
+  "/:userId/site/:siteId/sensors/innerTemps",
+  async (req, res, next) => {
+    Trends.findAll({
+        attributes: ["time_stamp", "value"],
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          sensor_id: 'temp_1',
+        },
+        limit: 120,
+        order: "time_stamp desc",
+      })
+      .then((result) => {
+        res.json({
+          data: result,
+          test: "test",
+          error: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          error: null,
+        });
+      });
+  }
+);
+
+router.get(
   "/:userId/site/:siteId/controls/side/motors",
 
   async (req, res, next) => {
