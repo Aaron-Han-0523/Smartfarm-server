@@ -596,7 +596,7 @@ router.get(
 );
 
 router.get(
-  "/:userId/site/:siteId/sensors/innerTemps",
+  "/:userId/site/:siteId/innerTemps",
   async (req, res, next) => {
     Trends.findAll({
         attributes: ["time_stamp", "value"],
@@ -606,7 +606,9 @@ router.get(
           sensor_id: 'temp_1',
         },
         limit: 120,
-        order: "time_stamp desc",
+        order: [
+          ["time_stamp", "DESC"]
+        ],
       })
       .then((result) => {
         res.json({
