@@ -1,7 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "SITES",
-    {
+    "sites", {
       sid: {
         type: DataTypes.STRING(20),
         primaryKey: true,
@@ -58,11 +57,10 @@ module.exports = (sequelize, DataTypes) => {
       site_set_alarm_timer: {
         type: DataTypes.STRING(200),
       }
-    },
-    {
+    }, {
       createdAt: false,
       updatedAt: false,
-      tableName: "SITES",
+      tableName: "sites",
     }
   );
 };

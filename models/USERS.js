@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "USERS", {
+    "users", {
       uid: {
         type: DataTypes.STRING(20),
         primaryKey: true,
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
       createdAt: false,
       updatedAt: false,
-      tableName: "USERS",
+      tableName: "users",
     }
   );
 };

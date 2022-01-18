@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define(
-        "ACTUATORS", {
+        "actuators", {
             motor_id: {
                 type: DataTypes.STRING(20),
                 primaryKey: true,
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         }, {
             createdAt: false,
             updatedAt: false,
-            tableName: "ACTUATORS",
+            tableName: "actuators",
         }
     );
 };
