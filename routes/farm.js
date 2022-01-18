@@ -596,6 +596,37 @@ router.get(
 );
 
 router.get(
+  "/:userId/site/:siteId/innerTemps",
+  async (req, res, next) => {
+    Trends.findAll({
+        attributes: ["time_stamp", "value"],
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          sensor_id: 'temp_1',
+        },
+        limit: 120,
+        order: [
+          ["time_stamp", "DESC"]
+        ],
+      })
+      .then((result) => {
+        res.json({
+          data: result,
+          test: "test",
+          error: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          error: null,
+        });
+      });
+  }
+);
+
+router.get(
   "/:userId/site/:siteId/controls/side/motors",
 
   async (req, res, next) => {
@@ -888,7 +919,7 @@ router.put("/:userId/site/:siteId/settings", async (req, res, next) => {
   let site_set_alarm_low = req.body.site_set_alarm_low;
   let site_set_alarm_timer = req.body.site_set_alarm_timer;
   if (!empty(req.params.siteId)) {
-    Events.update({
+    Sites.update({
         site_set_alarm_enable: site_set_alarm_enable,
         site_set_alarm_high: site_set_alarm_high,
         site_set_alarm_low: site_set_alarm_low,

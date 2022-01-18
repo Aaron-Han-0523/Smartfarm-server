@@ -187,10 +187,10 @@ function mqttData() {
     // if (alarm_low_temp < temp_1 && temp_1 < alarm_high_temp && alarm_en == true) {
     //   console.log("[푸시알림] 내부온도가 설정한 고저온도에 between 하니, 푸시알림 보내지 않아도 된당")
     // } else if (alarm_low_temp > temp_1 && alarm_en == true) {
-    //   pushAlarm('내부온도 경보 알림', '[푸시알림] ##### 저온');
+    //   pushAlarm('[푸시알림] 내부온도 경보 알림', '##### 저온');
     //   console.log("[푸시알림] 내부온도가 저온 설정보다 이하니까, 푸시알림 보내야한다")
     // } else if (alarm_high_temp < temp_1 && alarm_en == true) {
-    //   pushAlarm('내부온도 경보 알림', '[푸시알림] ***** 고온');
+    //   pushAlarm('[푸시알림] 내부온도 경보 알림', '***** 고온');
     //   console.log("[푸시알림] 내부온도가 고온 설정보다 높으니까, 푸시알림 보내야한다")
     // } else {
     //   console.log("[푸시알림] 설정하지 않았으니까 또는 다른 조건에 맞지 않으니까, 푸시알림 보내지 않아도 된당")
@@ -200,13 +200,13 @@ function mqttData() {
     // TODO: 조건문 on/off 외에 예외 조건 처리 추가할 것
     console.log(pumps);
     if (pumps[0] != pump_1) {
-      pushAlarm('관수 On/Off 알림', '[푸시알림] 펌프 (#1)의 상태가' + pumps[0] + '에서' + pump_1 + '로 바뀌었습니다.');
+      pushAlarm('[푸시알림] 관수 On/Off 알림', '펌프 (#1)의 상태가 [' + pumps[0] + '] 에서 [' + pump_1 + '] 로 바뀌었습니다.');
       pumps[0] = pump_1;
-      console.log('[푸시알림] 펌프 (#1)의 상태가' + pumps[0] + '에서' + pump_1 + '로 바뀌었습니다.');
+      console.log('[푸시알림] 펌프 (#1)의 상태가 [' + pumps[0] + '] 에서 [' + pump_1 + '] 로 바뀌었습니다.');
     } else if (pumps[1] != pump_2) {
-      pushAlarm('관수 On/Off 알림', '[푸시알림] 펌프 (#2)의 상태가' + pumps[1] + '에서' + pump_2 + '로 바뀌었습니다.');
+      pushAlarm('[푸시알림] 관수 On/Off 알림', '펌프 (#2)의 상태가 [' + pumps[1] + '] 에서 [' + pump_2 + '] 로 바뀌었습니다.');
       pumps[1] = pump_2;
-      console.log('[푸시알림] 펌프 (#2)의 상태가' + pumps[1] + '에서' + pump_2 + '로 바뀌었습니다.');
+      console.log('[푸시알림] 펌프 (#2)의 상태가 [' + pumps[1] + '] 에서 [' + pump_2 + '] 로 바뀌었습니다.');
     } else {
       console.log('[푸시알림] 펌프 변동이 없습니다.');
     }
@@ -214,7 +214,7 @@ function mqttData() {
     // 감우 경보 
     /*
     if (감우 데이터 정보가 감지되었다면) {
-      pushAlarm('감우 경보 알림', '[푸시알림] 감우가 감지되었습니다! 주의) 이 알림은 조금이라도 비가 내리면 알림이 갑니다.');
+      pushAlarm('[푸시알림] 감우 경보 알림', '감우가 감지되었습니다! 주의) 이 알림은 조금이라도 비가 내리면 알림이 갑니다.');
       console.log('[푸시알림] 감우가 감지되었습니다! 주의) 이 알림은 조금이라도 비가 내리면 알림이 갑니다.');
     } else {
       console.log('[푸시알림] 감우 관련 변동이 없습니다.');
@@ -331,4 +331,49 @@ function sqlUpdate(datas) {
     ]);
   }
   // console.log(results);
+}
+
+// 설정 페이지에서 수정한 값 sql 업데이트 하기 
+async function sqlAlarmUpdate(datas) {
+  console.log("Connected!");
+
+  alarm_en = datas["alarm_en"];
+  alarm_high_temp = datas["alarm_high_temp"];
+  alarm_low_temp = datas["alarm_low_temp"];
+  watering_timer = datas["watering_timer"];
+
+  connection.query("update sites set site_set_alarm_enable = ?, site_set_alarm_high = ?, site_set_alarm_low = ?, site_set_alarm_timer = ? where uid = ?",
+    [alarm_en,
+      alarm_high_temp,
+      alarm_low_temp,
+      watering_timer,
+      uid,
+    ],
+    function test(error, results, fields) {
+      if (error) throw error;
+      console.log("update가 되었나요? 맞으면 1 안되면 0 :: ", results.message);
+    });
+}
+
+// 푸시알림 보내기
+async function pushAlarm(title, body) {
+  //디바이스의 토큰 값 
+  let deviceToken = fcmtoken;
+  let message = {
+    notification: {
+      title: title,
+      body: body,
+    },
+    token: deviceToken,
+  };
+
+  admin
+    .messaging()
+    .send(message)
+    .then(function (response) {
+      console.log('Successfully sent message: : ', response)
+    })
+    .catch(function (err) {
+      console.log('Error Sending message!!! : ', err)
+    })
 }
