@@ -96,6 +96,14 @@ var connection = mysql.createConnection({
   multipleStatements: true,
 });
 
+// var connection = mysql.createConnection({
+//   host: "localhost",
+//   user: "root",
+//   password: "adminadmin",
+//   database: "smartfarm",
+//   multipleStatements: true,
+// });
+
 // sql로 저장된 token값 가져와서 푸시 알림 보내기
 connection.query('select fcmtoken from users where uid=?',
   uid,
@@ -184,32 +192,37 @@ function mqttData() {
 
     /////////////////////////////////////////////////////////////////////////// fcm 시작
     // 내부온도 경보
-    // if (alarm_low_temp < temp_1 && temp_1 < alarm_high_temp && alarm_en == true) {
-    //   console.log("[푸시알림] 내부온도가 설정한 고저온도에 between 하니, 푸시알림 보내지 않아도 된당")
-    // } else if (alarm_low_temp > temp_1 && alarm_en == true) {
-    //   pushAlarm('[푸시알림] 내부온도 경보 알림', '##### 저온');
-    //   console.log("[푸시알림] 내부온도가 저온 설정보다 이하니까, 푸시알림 보내야한다")
-    // } else if (alarm_high_temp < temp_1 && alarm_en == true) {
-    //   pushAlarm('[푸시알림] 내부온도 경보 알림', '***** 고온');
-    //   console.log("[푸시알림] 내부온도가 고온 설정보다 높으니까, 푸시알림 보내야한다")
-    // } else {
-    //   console.log("[푸시알림] 설정하지 않았으니까 또는 다른 조건에 맞지 않으니까, 푸시알림 보내지 않아도 된당")
-    // }
+    if (alarm_low_temp < temp_1 && temp_1 < alarm_high_temp && alarm_en == "1") {
+      console.log("[푸시알림] 내부온도가 설정한 고저온도에 between 하니, 푸시알림 보내지 않아도 된당")
+    } else if (alarm_low_temp > temp_1 && alarm_en == "1") {
+      pushAlarm('[푸시알림] 내부온도 경보 알림', '현재 내부온도가 설정된 최저 온도보다 낮습니다.');
+      console.log("[푸시알림] 내부온도가 저온 설정보다 이하니까, 푸시알림 보내야한다")
+    } else if (alarm_high_temp < temp_1 && alarm_en == "1") {
+      pushAlarm('[푸시알림] 내부온도 경보 알림', '현재 내부온도가 설정된 최고 온도보다 높습니다.');
+      console.log("[푸시알림] 내부온도가 고온 설정보다 높으니까, 푸시알림 보내야한다")
+    } else {
+      console.log("[푸시알림] 설정하지 않았으니까 또는 다른 조건에 맞지 않으니까, 푸시알림 보내지 않아도 된당")
+    }
 
     // 관수 on/off
     // TODO: 조건문 on/off 외에 예외 조건 처리 추가할 것
     console.log(pumps);
-    if (pumps[0] != pump_1) {
-      pushAlarm('[푸시알림] 관수 On/Off 알림', '펌프 (#1)의 상태가 [' + pumps[0] + '] 에서 [' + pump_1 + '] 로 바뀌었습니다.');
-      pumps[0] = pump_1;
-      console.log('[푸시알림] 펌프 (#1)의 상태가 [' + pumps[0] + '] 에서 [' + pump_1 + '] 로 바뀌었습니다.');
-    } else if (pumps[1] != pump_2) {
-      pushAlarm('[푸시알림] 관수 On/Off 알림', '펌프 (#2)의 상태가 [' + pumps[1] + '] 에서 [' + pump_2 + '] 로 바뀌었습니다.');
-      pumps[1] = pump_2;
-      console.log('[푸시알림] 펌프 (#2)의 상태가 [' + pumps[1] + '] 에서 [' + pump_2 + '] 로 바뀌었습니다.');
-    } else {
-      console.log('[푸시알림] 펌프 변동이 없습니다.');
+    if (pumps[0] != '' && pumps[1] != '') {
+      if (pumps[0] != pump_1 && alarm_en == "1") {
+        pushAlarm('[푸시알림] 관수 On/Off 알림', '펌프 (#1)의 상태가 [' + pumps[0] + '] 에서 [' + pump_1 + '] 로 바뀌었습니다.');
+        pumps[0] = pump_1;
+        console.log('[푸시알림] 펌프 (#1)의 상태가 [' + pumps[0] + '] 에서 [' + pump_1 + '] 로 바뀌었습니다.');
+      } else if (pumps[1] != pump_2 && alarm_en == "1") {
+        pushAlarm('[푸시알림] 관수 On/Off 알림', '펌프 (#2)의 상태가 [' + pumps[1] + '] 에서 [' + pump_2 + '] 로 바뀌었습니다.');
+        pumps[1] = pump_2;
+        console.log('[푸시알림] 펌프 (#2)의 상태가 [' + pumps[1] + '] 에서 [' + pump_2 + '] 로 바뀌었습니다.');
+      } else if (alarm_en == "1") {
+        console.log('[푸시알림] 펌프 변동이 없습니다.');
+      } else {
+        console.log('[푸시알림] 설정을 하지 않았습니다.');
+      }
     }
+    pumps = [pump_1, pump_2];
 
     // 감우 경보 
     /*
