@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": "root",
+    "username": "edgeworks",
+    "password": "jsoftware1!",
     "database": "smartfarm",
-    "host": "127.0.0.1",
+    "host": "13.209.88.255",
     "dialect": "mysql"
   },
   "test": {

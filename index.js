@@ -89,9 +89,9 @@ admin.initializeApp({
 
 // sql
 var connection = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
-  password: "root",
+  host: "13.209.88.255",
+  user: "edgeworks",
+  password: "jsoftware1!",
   database: "smartfarm",
   multipleStatements: true,
 });
