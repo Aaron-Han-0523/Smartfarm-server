@@ -149,8 +149,9 @@ var bool = false;
 const client = mqtt.connect("mqtt://broker.mqttdashboard.com:1883", options);
 
 // run
-mqttData();
-mqttAlarmData();
+// mqttData();
+_evtCode();
+// mqttAlarmData();
 
 // setInterval(() => {
 //   mqttData();
@@ -366,6 +367,22 @@ async function sqlAlarmUpdate(datas) {
       if (error) throw error;
       console.log("update가 되었나요? 맞으면 1 안되면 0 :: ", results.message);
     });
+}
+
+// 이벤트 코드 받는 로직
+function _evtCode(){
+  client.subscribe("/sf/e0000001/evt");
+  client.on("connect", function () {
+    console.log("connected  " + client.connected);
+  });
+  client.on("message", function (topic, message, packet) {
+    console.log(bool);
+    console.log("message is " + message);
+    console.log("topic is " + topic);
+
+    var datas = JSON.parse(message.toString());
+    console.log("topic is " + datas["s"]);
+  });
 }
 
 // 푸시알림 보내기
