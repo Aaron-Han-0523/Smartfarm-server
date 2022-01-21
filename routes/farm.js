@@ -626,6 +626,7 @@ router.get(
   }
 );
 
+
 router.get(
   "/:userId/site/:siteId/controls/side/motors",
 
@@ -748,6 +749,106 @@ router.get(
     }
   }
 );
+
+// motor - etc control
+router.get(
+  "/:userId/site/:siteId/controls/etc/motors",
+  async (req, res, next) => {
+    if (!empty(req.params.userId)) {
+      Motors.findAll({
+          where: {
+            uid: req.params.userId,
+            sid: req.params.siteId,
+            motor_type: "etc",
+          },
+        })
+        .then((result) => {
+          res.json({
+            data: result,
+            test: "test",
+            error: null,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+          res.json({
+            error: null,
+          });
+        });
+    } else {
+      res.json(err);
+    }
+  }
+);
+
+router.put(
+  "/:userId/site/:siteId/controls/etc/motors",
+
+  async (req, res, next) => {
+    let motor_type = req.body.motor_type;
+    let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action;
+    Motors.update({
+        motor_type: motor_type,
+        motor_name: motor_name,
+        motor_action: motor_action,
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          motor_type: "etc",
+        },
+      })
+      .then((result) => {
+        res.json({
+          data: result,
+          test: "test",
+          error: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          error: null,
+        });
+      });
+  }
+);
+
+router.put(
+  "/:userId/site/:siteId/controls/etc/motors/:motorId",
+  async (req, res, next) => {
+    // let motor_type = req.body.motor_type;
+    let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action;
+    Motors.update({
+        // motor_type: motor_type,
+        motor_name: motor_name,
+        motor_action: motor_action,
+      }, {
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+          motor_id: req.params.motorId,
+          motor_type: "etc",
+        },
+      })
+      .then((result) => {
+        res.json({
+          data: result,
+          test: "test",
+          error: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          error: null,
+        });
+      });
+  }
+);
+
 
 // sherry
 
