@@ -149,7 +149,7 @@ const client = mqtt.connect("mqtt://broker.mqttdashboard.com:1883", options);
 
 // run
 // mqttData();
-_evtCode();
+// _evtCode();
 // mqttAlarmData();
 
 // setInterval(() => {
