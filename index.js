@@ -93,22 +93,22 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-// sql
-// var connection = mysql.createConnection({
-//   host: "13.209.88.255",
-//   user: "edgeworks",
-//   password: "jsoftware1!",
-//   database: "smartfarm",
-//   multipleStatements: true,
-// });
-
+sql
 var connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
+  host: "14.46.231.48",
+  user: "edgeworks",
+  password: "jsoftware1!",
   database: "smartfarm",
   multipleStatements: true,
 });
+
+// var connection = mysql.createConnection({
+//   host: "localhost",
+//   user: "root",
+//   password: "root",
+//   database: "smartfarm",
+//   multipleStatements: true,
+// });
 
 // sql로 저장된 token값 가져와서 푸시 알림 보내기
 connection.query(
@@ -233,17 +233,46 @@ function mqttData() {
   //   // console.log("end!!!!!!!!!");
   // });
 
-  client.subscribe("/sf/e0000001/evt");
+  // client.subscribe("/sf/e0000001/evt");
+  // client.on("connect", function () {
+  //   console.log("connected  " + client.connected);
+  // });
+  // client.on("message", function (topic, message, packet) {
+  //   console.log("evt_update " + evt_update);
+  //   console.log("message is " + message);
+  //   console.log("topic is " + topic);
+
+  //   var evtDatas = JSON.parse(message.toString());
+  //   console.log("evdatas" + evtDatas);
+  //   // evt_time_stamp = evtDatas["t"];
+  //   // event_saverity = evtDatas["ev"];
+  //   // alarm_code = evtDatas["ec"];
+
+  //   // schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
+  //   //   bool = true;
+  //   // });
+  //   //     let evt_time_stamp = "";
+  //   // let event_saverity = 0;
+  //   // let alarm_code = "";
+  //   if (evt_update == true && evtDatas["ev"] != undefined) {
+  //     evtUpdate(evtDatas);
+  //   } else if (evt_update == false) {
+  //     evtInsert(evtDatas);
+  //     evt_update = true;
+  //   }
+  // });
+
+  client.subscribe("/sf/e0000001/res/cfg");
   client.on("connect", function () {
     console.log("connected  " + client.connected);
   });
+  const pubTopic = "/sf/e0000001/req/cfg";
+  client.publish(pubTopic, '{"rt" : "get"}');
   client.on("message", function (topic, message, packet) {
-    console.log("evt_update " + evt_update);
+    console.log("evt_update " + sites_update);
     console.log("message is " + message);
     console.log("topic is " + topic);
-
-    var evtDatas = JSON.parse(message.toString());
-    console.log("evdatas" + evtDatas);
+    var sitesDatas = JSON.parse(message.toString());
     // evt_time_stamp = evtDatas["t"];
     // event_saverity = evtDatas["ev"];
     // alarm_code = evtDatas["ec"];
@@ -254,43 +283,23 @@ function mqttData() {
     //     let evt_time_stamp = "";
     // let event_saverity = 0;
     // let alarm_code = "";
-    if (evt_update == true && evtDatas["ev"] != undefined) {
-      evtUpdate(evtDatas);
-    } else if (evt_update == false) {
-      evtInsert(evtDatas);
+    if (sites_update == true && sitesDatas["sname"] != undefined) {
+      sitesUpdate(sitesDatas);
+    } else if (sites_update == false) {
+      sitesInsert(sitesDatas);
       evt_update = true;
     }
-
-    // client.subscribe("/sf/e0000001/res/cfg");
-    // client.on("connect", function () {
-    //   console.log("connected  " + client.connected);
-    // });
-    // const pubTopic = "/sf/e0000001/req/cfg";
-    // client.publish(pubTopic, '{"rt" : "get"}');
-    // client.on("message", function (topic, message, packet) {
-    //   console.log("evt_update " + sites_update);
-    //   console.log("message is " + message);
-    //   console.log("topic is " + topic);
-    //   var sitesDatas = JSON.parse(message.toString());
-    //   // evt_time_stamp = evtDatas["t"];
-    //   // event_saverity = evtDatas["ev"];
-    //   // alarm_code = evtDatas["ec"];
-
-    //   // schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
-    //   //   bool = true;
-    //   // });
-    //   //     let evt_time_stamp = "";
-    //   // let event_saverity = 0;
-    //   // let alarm_code = "";
-    //   if (sites_update == true && sitesDatas["sname"] != undefined) {
-    //     sitesUpdate(sitesDatas);
-    //   } else if (sites_update == false) {
-    //     sitesInsert(sitesDatas);
-    //     evt_update = true;
-    //   }
-    // });
-    console.log("end!!!!!!!!!");
+    mechInsert(sitesDatas, "temp");
+    mechInsert(sitesDatas, "humid");
+    mechInsert(sitesDatas, "exttemp");
+    mechInsert(sitesDatas, "soiltemp");
+    mechInsert(sitesDatas, "soilhumid");
+    mechInsert(sitesDatas, "motor");
+    mechInsert(sitesDatas, "pump");
+    mechInsert(sitesDatas, "valve");
+    // mechInsert(sitesDatas,'temp');
   });
+  console.log("end!!!!!!!!!");
 }
 
 // trends에 데이터 보내기
@@ -444,6 +453,135 @@ function sitesUpdate(sitesDatas) {
       sid,
       uid,
     ],
+    function test(error, results, fields) {
+      if (error) throw error;
+      console.log("evtresults" + results);
+    }
+  );
+}
+
+function mechInsert(datas, mech) {
+  // var keys = Object.keys(evt_update);
+  console.log(mech + "Insert!");
+  let cnt = 0
+  if (mech=='temp' || mech=='humid' || mech=='exttemp' || mech=='soiltemp' || mech == 'soilhumid') {
+    cnt=datas[mech + "_ss_cnt"]
+  } else  {
+    cnt=datas[mech + "_cnt"]}
+  // }else if(mech=='motor') {
+  //   table_name='motors'
+  // }else if(mech=='valve') {
+  //   table_name='valves'
+  // }
+  // let cnt = datas[mech + "_ss_cnt"];
+  console.log(mech +cnt+ "Insert!");
+  // let mech_name = datas[mech+"_ss_name_"+i];
+  // let mech_id = datas[mech+"_"+i];
+  for (let index = 0; index < cnt; index++) {
+    // if (table_name=='motors') {
+    //   connection.query(
+    //     "insert ignore into motors values (?,?,?,'?',?,?);",
+    //     [mech+"_"+index,sid,uid,,'',0,datas[mech+"_ss_name_"+(index+1)]],
+    //     function test(error, results, fields) {
+    //       if (error) throw error;
+    //       console.log("mechInsert" + results);
+    //     }
+    //   );
+    // } else {
+    //   connection.query(
+    //     "insert ignore into ? values (?,?,?,'?',?);",
+    //     [table_name,mech+"_"+index,sid,uid,0,datas[mech+"_ss_name_"+(index+1)]],
+    //     function test(error, results, fields) {
+    //       if (error) throw error;
+    //       console.log("mechInsert" + results);
+    //     }
+    //   );
+    // }
+
+    if (
+      mech == "temp" ||
+      mech == "humid" ||
+      mech == "exttemp" ||
+      mech == "soiltemp" ||
+      mech == "soilhumid"
+    ) {
+      connection.query(
+        "insert ignore into sensors values (?,?,?,'?',?);",
+        [
+          mech + "_" + (index + 1),
+          sid,
+          uid,
+          0,
+          datas[mech + "_ss_name_" + (index + 1)],
+        ],
+        function test(error, results, fields) {
+          if (error) throw error;
+          console.log("temp" + results);
+        }
+      );
+    }
+    if (mech == "pump") {
+      connection.query(
+        "insert ignore into pumps values (?,?,?,'?',?);",
+        [
+          mech + "_" + (index + 1),
+          sid,
+          uid,
+          0,
+          datas[mech + "_name_" + (index + 1)],
+        ],
+        function test(error, results, fields) {
+          if (error) throw error;
+          console.log("pump" + results);
+        }
+      );
+    }
+    if (mech == "motor") {
+      connection.query(
+        "insert ignore into motors values (?,?,?,'?',?,?);",
+        [
+          mech + "_" + (index + 1),
+          sid,
+          uid,
+          '',
+          0,
+          datas[mech + "_name_" + (index + 1)],
+        ],
+        function test(error, results, fields) {
+          if (error) throw error;
+          console.log("motor" + results);
+        }
+      );
+    }
+    if (mech == "valve") {
+      connection.query(
+        "insert ignore into valves values (?,?,?,'?',?);",
+        [
+          mech + "_" + (index + 1),
+          sid,
+          uid,
+          0,
+          datas[mech + "_name_" + (index + 1)],
+        ],
+        function test(error, results, fields) {
+          if (error) throw error;
+          console.log("valve" + results);
+        }
+      );
+    }
+  }
+}
+
+function mechUpdate(datas) {
+  // var keys = Object.keys(evt_update);
+  console.log("Connected!");
+
+  var time_stamp = evtDatas["t"];
+  var event_saverity = evtDatas["ev"];
+  var alarm_code = evtDatas["ec"];
+  connection.query(
+    "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
+    [time_stamp, event_saverity, alarm_code, sid, uid],
     function test(error, results, fields) {
       if (error) throw error;
       console.log("evtresults" + results);
