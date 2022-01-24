@@ -93,14 +93,23 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-sql
+//sql(aws)
 var connection = mysql.createConnection({
-  host: "14.46.231.48",
+  host: "13.209.88.255",
   user: "edgeworks",
   password: "jsoftware1!",
   database: "smartfarm",
   multipleStatements: true,
 });
+
+// //sql(edgeworks)
+// var connection = mysql.createConnection({
+//   host: "14.46.231.48",
+//   user: "edgeworks",
+//   password: "jsoftware1!",
+//   database: "smartfarm",
+//   multipleStatements: true,
+// });
 
 // var connection = mysql.createConnection({
 //   host: "localhost",
@@ -199,68 +208,68 @@ mqttData();
 // }, 600000);
 
 function mqttData() {
-  // client.subscribe("/sf/e0000001/data");
-  // client.on("connect", function () {
-  //   console.log("connected  " + client.connected);
-  // });
-  // client.on("message", function (topic, message, packet) {
-  //   console.log(bool);
-  //   console.log("message is " + message);
-  //   console.log("topic is " + topic);
+  client.subscribe("/sf/e0000001/data");
+  client.on("connect", function () {
+    console.log("connected  " + client.connected);
+  });
+  client.on("message", function (topic, message, packet) {
+    console.log(bool);
+    console.log("message is " + message);
+    console.log("topic is " + topic);
 
-  //   var datas = JSON.parse(message.toString());
-  //   temp_1 = datas["temp_1"];
-  //   pump_1 = datas["pump_1"];
-  //   pump_2 = datas["pump_2"];
-  //   // valve_1 = datas["valve_1"];
-  //   // valve_2 = datas["valve_2"];
-  //   motor_1 = datas["motor_1"];
-  //   motor_2 = datas["motor_2"];
-  //   motor_3 = datas["motor_3"];
-  //   motor_4 = datas["motor_4"];
-  //   motor_5 = datas["motor_5"];
-  //   motor_6 = datas["motor_6"];
+    var datas = JSON.parse(message.toString());
+    temp_1 = datas["temp_1"];
+    pump_1 = datas["pump_1"];
+    pump_2 = datas["pump_2"];
+    // valve_1 = datas["valve_1"];
+    // valve_2 = datas["valve_2"];
+    motor_1 = datas["motor_1"];
+    motor_2 = datas["motor_2"];
+    motor_3 = datas["motor_3"];
+    motor_4 = datas["motor_4"];
+    motor_5 = datas["motor_5"];
+    motor_6 = datas["motor_6"];
 
-  //   // schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
-  //   //   bool = true;
-  //   // });
-  //   // if (bool == true) {
-  //   //   sqlUpdate(datas);
-  //   //   bool = false;
-  //   //   console.log(bool);
-  //   //   console.log("sql");
-  //   // }
-  //   // console.log("end!!!!!!!!!");
-  // });
+    // schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
+    //   bool = true;
+    // });
+    // if (bool == true) {
+    //   sqlUpdate(datas);
+    //   bool = false;
+    //   console.log(bool);
+    //   console.log("sql");
+    // }
+    // console.log("end!!!!!!!!!");
+  });
 
-  // client.subscribe("/sf/e0000001/evt");
-  // client.on("connect", function () {
-  //   console.log("connected  " + client.connected);
-  // });
-  // client.on("message", function (topic, message, packet) {
-  //   console.log("evt_update " + evt_update);
-  //   console.log("message is " + message);
-  //   console.log("topic is " + topic);
+  client.subscribe("/sf/e0000001/evt");
+  client.on("connect", function () {
+    console.log("connected  " + client.connected);
+  });
+  client.on("message", function (topic, message, packet) {
+    console.log("evt_update " + evt_update);
+    console.log("message is " + message);
+    console.log("topic is " + topic);
 
-  //   var evtDatas = JSON.parse(message.toString());
-  //   console.log("evdatas" + evtDatas);
-  //   // evt_time_stamp = evtDatas["t"];
-  //   // event_saverity = evtDatas["ev"];
-  //   // alarm_code = evtDatas["ec"];
+    var evtDatas = JSON.parse(message.toString());
+    console.log("evdatas" + evtDatas);
+    // evt_time_stamp = evtDatas["t"];
+    // event_saverity = evtDatas["ev"];
+    // alarm_code = evtDatas["ec"];
 
-  //   // schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
-  //   //   bool = true;
-  //   // });
-  //   //     let evt_time_stamp = "";
-  //   // let event_saverity = 0;
-  //   // let alarm_code = "";
-  //   if (evt_update == true && evtDatas["ev"] != undefined) {
-  //     evtUpdate(evtDatas);
-  //   } else if (evt_update == false) {
-  //     evtInsert(evtDatas);
-  //     evt_update = true;
-  //   }
-  // });
+    // schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
+    //   bool = true;
+    // });
+    //     let evt_time_stamp = "";
+    // let event_saverity = 0;
+    // let alarm_code = "";
+    if (evt_update == true && evtDatas["ev"] != undefined) {
+      evtUpdate(evtDatas);
+    } else if (evt_update == false) {
+      evtInsert(evtDatas);
+      evt_update = true;
+    }
+  });
 
   client.subscribe("/sf/e0000001/res/cfg");
   client.on("connect", function () {
