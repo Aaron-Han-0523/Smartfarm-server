@@ -102,22 +102,22 @@ admin.initializeApp({
 //   multipleStatements: true,
 // });
 
-//sql(edgeworks)
-var connection = mysql.createConnection({
-  host: "14.46.231.48",
-  user: "edgeworks",
-  password: "jsoftware1!",
-  database: "smartfarm",
-  multipleStatements: true,
-});
-
+// //sql(edgeworks)
 // var connection = mysql.createConnection({
-//   host: "localhost",
-//   user: "root",
-//   password: "root",
+//   host: "14.46.231.48",
+//   user: "edgeworks",
+//   password: "jsoftware1!",
 //   database: "smartfarm",
 //   multipleStatements: true,
 // });
+
+var connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "root",
+  database: "smartfarm",
+  multipleStatements: true,
+});
 
 // sql로 저장된 token값 가져와서 푸시 알림 보내기
 connection.query(
@@ -319,7 +319,8 @@ function sqlUpdate(datas) {
     let sensor_id = keys[i].toString();
     let time_stamp = datas["t"].toString();
     let value = datas[keys[i]].toString();
-    connection.query("insert ignore into trends values (?,?,?,?,?);", [
+    connection.query("insert ignore into trends values (?,?,?,?,?,?);", [
+      ,
       sensor_id,
       sid,
       uid,
@@ -338,8 +339,8 @@ function evtInsert(evtDatas) {
   let event_saverity = evtDatas["ev"];
   let alarm_code = evtDatas["ec"];
   connection.query(
-    "insert ignore into events values (?,?,?,'?',?);",
-    [sid, uid, time_stamp, event_saverity, alarm_code],
+    "insert ignore into events values (?,?,?,?,'?',?);",
+    [,sid, uid, time_stamp, event_saverity, alarm_code],
     function test(error, results, fields) {
       if (error) throw error;
       console.log("evtresults" + results);
