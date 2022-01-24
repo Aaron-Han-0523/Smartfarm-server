@@ -3,19 +3,15 @@ module.exports = (sequelize, DataTypes) => {
         "trends", {
             sensor_id: {
                 type: DataTypes.STRING(20),
-                primaryKey: true,
             },
             sid: {
                 type: DataTypes.STRING(20),
-                primaryKey: true,
             },
             uid: {
                 type: DataTypes.STRING(20),
-                primaryKey: true,
             },
             time_stamp: {
                 type: DataTypes.STRING(255),
-                primaryKey: true,
             },
             value: {
                 type: DataTypes.STRING(255),

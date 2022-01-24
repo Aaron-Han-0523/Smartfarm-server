@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       uid: {
         type: DataTypes.STRING(20),
-        primaryKey: true,
       },
       site_name: {
         type: DataTypes.STRING(200),

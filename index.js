@@ -94,22 +94,22 @@ admin.initializeApp({
 });
 
 //sql(aws)
-var connection = mysql.createConnection({
-  host: "13.209.88.255",
-  user: "edgeworks",
-  password: "jsoftware1!",
-  database: "smartfarm",
-  multipleStatements: true,
-});
-
-// //sql(edgeworks)
 // var connection = mysql.createConnection({
-//   host: "14.46.231.48",
+//   host: "13.209.88.255",
 //   user: "edgeworks",
 //   password: "jsoftware1!",
 //   database: "smartfarm",
 //   multipleStatements: true,
 // });
+
+//sql(edgeworks)
+var connection = mysql.createConnection({
+  host: "14.46.231.48",
+  user: "edgeworks",
+  password: "jsoftware1!",
+  database: "smartfarm",
+  multipleStatements: true,
+});
 
 // var connection = mysql.createConnection({
 //   host: "localhost",

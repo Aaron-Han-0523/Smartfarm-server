@@ -3,7 +3,7 @@
     "username": "edgeworks",
     "password": "jsoftware1!",
     "database": "smartfarm",
-    "host": "13.209.88.255",
+    "host": "14.46.231.48",
     "dialect": "mysql"
   },
   "test": {
