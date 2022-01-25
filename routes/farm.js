@@ -10,6 +10,8 @@ const stringify = require("json-stringify-pretty-compact"); //json 값을 문자
 
 let router = express.Router();
 
+var resMQTT=require('../mqtt.js')
+
 const {
   User,
   Trends,
@@ -91,6 +93,7 @@ router.post("/login", (req, res, next) => {
                 results,
                 result: true,
               });
+              resMQTT(userId);
               console.log(result);
             });
           } else {
