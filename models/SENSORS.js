@@ -7,11 +7,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       sid: {
         type: DataTypes.STRING(20),
-        primaryKey: true,
       },
       uid: {
         type: DataTypes.STRING(20),
-        primaryKey: true,
       },
       sensor_type: {
         type: DataTypes.STRING(255),

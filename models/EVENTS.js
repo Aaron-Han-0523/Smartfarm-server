@@ -3,11 +3,9 @@ module.exports = (sequelize, DataTypes) => {
     "events", {
       sid: {
         type: DataTypes.STRING(20),
-        primaryKey: true,
       },
       uid: {
         type: DataTypes.STRING(20),
-        primaryKey: true,
       },
       time_stamp: {
         type: DataTypes.STRING(255),
