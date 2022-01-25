@@ -343,9 +343,12 @@ router.delete("/:userId", async (req, res, next) => {
 });
 
 router.get("/:userId/sites", async (req, res, next) => {
-  Sites.findAll({})
-    .then((result) => {
-      // res.json({"data":result, test: "test", error: null})
+  Sites.findAll({
+      where: {
+        uid: req.params.userId,
+        // sid: req.params.siteId,
+      },
+    }).then((result) => {
       res.json(result);
     })
     .catch((err) => {
@@ -355,6 +358,26 @@ router.get("/:userId/sites", async (req, res, next) => {
       });
     });
 });
+
+//site_name으로 siteId찾기 
+router.get("/:userId/sites/:siteName", async (req, res, next) => {
+  Sites.findAll({
+      where: {
+        uid: req.params.userId,
+        site_name: req.params.siteName
+        // sid: req.params.siteId,
+      },
+    }).then((result) => {
+      res.json(result[0]["sid"]);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({
+        error: null,
+      });
+    });
+});
+
 
 router.post("/:userId/sites", async (req, res, next) => {
   let sid = req.body.sid;
@@ -439,6 +462,7 @@ router.get("/:userId/sites/:siteId", async (req, res, next) => {
       });
     });
 });
+
 
 router.delete("/:userId/sites/:siteId", async (req, res, next) => {
   if (!empty(req.params.userId)) {
@@ -818,11 +842,11 @@ router.put(
 router.put(
   "/:userId/site/:siteId/controls/etc/motors/:motorId",
   async (req, res, next) => {
-    // let motor_type = req.body.motor_type;
+    let motor_type = req.body.motor_type;
     let motor_name = req.body.motor_name;
     let motor_action = req.body.motor_action;
     Motors.update({
-        // motor_type: motor_type,
+        motor_type: motor_type,
         motor_name: motor_name,
         motor_action: motor_action,
       }, {
