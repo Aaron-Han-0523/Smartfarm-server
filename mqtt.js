@@ -16,18 +16,6 @@ var mqttFunction = function (uids) {
   let alarm_high_temp = "";
   let alarm_low_temp = "";
 
-  let temp_1 = "";
-  let pump_1 = "";
-  let pump_2 = "";
-  let valve_1 = "";
-  let valve_2 = "";
-  let motor_1 = "";
-  let motor_2 = "";
-  let motor_3 = "";
-  let motor_4 = "";
-  let motor_5 = "";
-  let motor_6 = "";
-
   let watering_timer = "";
 
   var trend_update = false;
@@ -119,11 +107,13 @@ var mqttFunction = function (uids) {
           console.log("//////////////////////////");
 
           mqttData();
+          _evtCode();
         } else {
           console.log("여기냐");
           sidList.push("e0000001");
           site_id = "e0000001";
           mqttData();
+          _evtCode();
         }
 
         console.log("inner data" + sidList.length);
@@ -174,19 +164,22 @@ var mqttFunction = function (uids) {
         console.log("connected  " + client.connected);
       });
       client.on("message", function (topic, message, packet) {
-        console.log(trend_update);
+        console.log("trend_update" + trend_update);
         console.log("message is " + message);
         console.log("topic is " + topic);
+        console.log("trend_index_sid" + index_sid);
 
-        var datas = JSON.parse(message.toString());
-
+        var ss_datas = JSON.parse(message.toString());
+        console.log("trend_index_datas " + i + " " + ss_datas);
         schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
           trend_update = true;
+          console.log("바뀌냐1" + trend_update);
         });
         if (trend_update == true) {
-          sqlUpdate(datas, index_sid);
+          console.log("바뀌냐2" + trend_update);
+          sqlUpdate(ss_datas, index_sid);
           trend_update = false;
-          console.log(trend_update);
+          console.log("trend_update" + trend_update);
           console.log("sql");
         }
         console.log("end!!!!!!!!!");
@@ -236,7 +229,7 @@ var mqttFunction = function (uids) {
           sitesDatas["sname"] != undefined
         ) {
           sitesInsert(sitesDatas, index_sid);
-          sites_update = true;
+          // sites_update = true;
         }
 
         if (sitesDatas["sname"] != undefined) {
@@ -256,13 +249,13 @@ var mqttFunction = function (uids) {
   }
 
   // trends table에 데이터 보내기
-  function sqlUpdate(datas, index_sid) {
-    var keys = Object.keys(datas);
+  function sqlUpdate(ssdatas, index_sid) {
+    var keys = Object.keys(ssdatas);
     console.log("Connected!");
     for (let i = 2; i < keys.length; i++) {
       let sensor_id = keys[i].toString();
-      let time_stamp = datas["t"].toString();
-      let value = datas[keys[i]].toString();
+      let time_stamp = ssdatas["t"].toString();
+      let value = ssdatas[keys[i]].toString();
       connection.query("insert ignore into trends values (?,?,?,?,?,?);", [
         ,
         sensor_id,
@@ -419,7 +412,7 @@ var mqttFunction = function (uids) {
   }
 
   //각 장치 table에 insert/update
-  function mechInsert(datas, mech, index_sid) {
+  function mechInsert(mech_datas, mech, index_sid) {
     // var keys = Object.keys(evt_update);
     console.log(mech + "Insert!");
     let cnt = 0;
@@ -430,9 +423,13 @@ var mqttFunction = function (uids) {
       mech == "soiltemp" ||
       mech == "soilhumid"
     ) {
-      cnt = datas[mech + "_ss_cnt"] == undefined ? 0 : datas[mech + "_ss_cnt"];
+      cnt =
+        mech_datas[mech + "_ss_cnt"] == undefined
+          ? 0
+          : mech_datas[mech + "_ss_cnt"];
     } else {
-      cnt = datas[mech + "_cnt"] == undefined ? 0 : datas[mech + "_cnt"];
+      cnt =
+        mech_datas[mech + "_cnt"] == undefined ? 0 : mech_datas[mech + "_cnt"];
     }
 
     console.log(mech + cnt + "Insert!");
@@ -444,7 +441,7 @@ var mqttFunction = function (uids) {
         mech == "soiltemp" ||
         mech == "soilhumid"
       ) {
-        var sensor_name = datas[mech + "_ss_name_" + (index + 1)];
+        var sensor_name = mech_datas[mech + "_ss_name_" + (index + 1)];
         connection.query(
           "insert into sensors values (?,?,?,'?',?);",
           [mech + "_" + (index + 1), index_sid, uid, 0, sensor_name],
@@ -462,7 +459,7 @@ var mqttFunction = function (uids) {
           }
         );
       } else if (mech == "pump") {
-        var pump_name = datas[mech + "_name_" + (index + 1)];
+        var pump_name = mech_datas[mech + "_name_" + (index + 1)];
         connection.query(
           "insert into pumps values (?,?,?,'?',?);",
           [mech + "_" + (index + 1), index_sid, uid, 0, pump_name],
@@ -480,7 +477,7 @@ var mqttFunction = function (uids) {
           }
         );
       } else if (mech == "motor") {
-        var motor_name = datas[mech + "_name_" + (index + 1)];
+        var motor_name = mech_datas[mech + "_name_" + (index + 1)];
         var motor_type =
           motor_name.split("_")[1] == null
             ? motor_name.split(" ")[1]
@@ -512,7 +509,7 @@ var mqttFunction = function (uids) {
           }
         );
       } else if (mech == "valve") {
-        var valve_name = datas[mech + "_name_" + (index + 1)];
+        var valve_name = mech_datas[mech + "_name_" + (index + 1)];
         connection.query(
           "insert into valves values (?,?,?,'?',?);",
           [mech + "_" + (index + 1), index_sid, uid, 0, ,],
@@ -535,48 +532,54 @@ var mqttFunction = function (uids) {
 
   // 이벤트 코드 받는 로직
   function _evtCode() {
-    client.subscribe("/sf/" + index_sid + "/evt");
-    client.on("connect", function () {
-      console.log("connected  " + client.connected);
-    });
-    client.on("message", function (topic, message, packet) {
-      // console.log(bool);
-      console.log("message is " + message);
-      // console.log("topic is " + topic);
+    for (let i = 0; i < sidList.length; i++) {
+      const index_sid = sidList[i];
+      client.subscribe("/sf/" + index_sid + "/evt");
+      client.on("connect", function () {
+        console.log("connected  " + client.connected);
+      });
+      client.on("message", function (topic, message, packet) {
+        // console.log(bool);
+        console.log("message is " + message);
+        // console.log("topic is " + topic);
 
-      var datas = JSON.parse(message.toString());
-      // console.log("topic is " + datas["s"]);
+        var evt_datas = JSON.parse(message.toString());
+        // console.log("topic is " + datas["s"]);
 
-      var sendPush = datas["ec"];
+        var sendPush = evt_datas["ec"];
 
-      // 혹시 몰라 경우의 수 정해놓음
-      if (sendPush == "AT01") {
-        console.log("[푸시알림] Temperature High 경보");
-        pushAlarm(
-          "[푸시알림] Temperature 경보",
-          "현재 내부온도가 설정된 최고 온도보다 높습니다."
-        );
-      } else if (sendPush == "AT02") {
-        console.log("[푸시알림] Temperature Low 경보");
-        pushAlarm(
-          "[푸시알림] Temperature 경보",
-          "현재 내부온도가 설정된 최저 온도보다 낮습니다."
-        );
-      } else if (sendPush == "AR01") {
-        console.log("[푸시알림] Rain 경보 감지됨");
-        pushAlarm(
-          "[푸시알림] Rain 경보",
-          "감우가 감지되었습니다! 주의) 이 알림은 조금이라도 비가 내리면 알림이 갑니다."
-        );
-      } else if (sendPush == "AW00") {
-        console.log("[푸시알림] WaterPump 경보, 상태 Off");
-      } else if (sendPush == "AW01") {
-        console.log("[푸시알림] WaterPump 경보, 상태 On");
-        pushAlarm("[푸시알림] WaterPump 경보", "관수 펌프의 상태가 On입니다.");
-      } else {
-        console.log("[푸시알림] 이벤트가 아닙니다.");
-      }
-    });
+        // 혹시 몰라 경우의 수 정해놓음
+        if (sendPush == "AT01") {
+          console.log("[푸시알림] Temperature High 경보");
+          pushAlarm(
+            "[푸시알림] Temperature 경보",
+            "현재 내부온도가 설정된 최고 온도보다 높습니다."
+          );
+        } else if (sendPush == "AT02") {
+          console.log("[푸시알림] Temperature Low 경보");
+          pushAlarm(
+            "[푸시알림] Temperature 경보",
+            "현재 내부온도가 설정된 최저 온도보다 낮습니다."
+          );
+        } else if (sendPush == "AR01") {
+          console.log("[푸시알림] Rain 경보 감지됨");
+          pushAlarm(
+            "[푸시알림] Rain 경보",
+            "감우가 감지되었습니다! 주의) 이 알림은 조금이라도 비가 내리면 알림이 갑니다."
+          );
+        } else if (sendPush == "AW00") {
+          console.log("[푸시알림] WaterPump 경보, 상태 Off");
+        } else if (sendPush == "AW01") {
+          console.log("[푸시알림] WaterPump 경보, 상태 On");
+          pushAlarm(
+            "[푸시알림] WaterPump 경보",
+            "관수 펌프의 상태가 On입니다."
+          );
+        } else {
+          console.log("[푸시알림] 이벤트가 아닙니다.");
+        }
+      });
+    }
   }
 
   // 푸시알림 보내기
