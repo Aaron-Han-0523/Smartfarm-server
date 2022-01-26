@@ -441,7 +441,7 @@ router.get("/:userId/sites", async (req, res, next) => {
 });
 
 // [추가] site_name으로 siteId찾기 
-router.get("/:userId/sites/:siteName", async (req, res, next) => {
+router.post("/:userId/sites/:siteName", async (req, res, next) => {
   Sites.findAll({
       where: {
         uid: req.params.userId,
@@ -466,8 +466,7 @@ router.get("/:userId/sites/:siteId", async (req, res, next) => {
         uid: req.params.userId,
         sid: req.params.siteId,
       },
-    })
-    .then((result) => {
+    }).then((result) => {
       res.json(result);
     })
     .catch((err) => {
@@ -1006,12 +1005,13 @@ router.get(
 router.put(
   "/:userId/site/:siteId/controls/actuators/:actuatorId",
   async (req, res, next) => {
-    let acturator_type = req.body.acturator_type;
-    let acturator_name = req.body.acturator_name;
+    console.log('act1')
+    let actuator_type = req.body.actuator_type;
+    let actuator_name = req.body.actuator_name;
     if (!empty(req.params.actuatorId)) {
       Actuators.update({
-          acturator_type: acturator_type,
-          acturator_name: acturator_name,
+        actuator_type: actuator_type,
+        actuator_name: actuator_name,
         }, {
           where: {
             uid: req.params.userId,
@@ -1021,6 +1021,7 @@ router.put(
         })
         .then((result) => {
           res.json(result);
+          console.log('act2'+result)
         })
         .catch((err) => {
           console.error(err);
