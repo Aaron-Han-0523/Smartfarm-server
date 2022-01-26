@@ -1099,8 +1099,6 @@ router.put(
 );
 
 
-// sherry
-
 /**
 INSERT INTO valves(valve_id, sid, uid, valve_action, valve_name)
 VALUE('valve_1', 'sid', 'test', '0', '밸브 (#1)');
@@ -1109,6 +1107,7 @@ VALUE('valve_2', 'sid', 'test', '0', '밸브 (#2)');
 select * from valves;
  */
 
+// [밸브 제어 상태 조회] EW-RCR-011
 router.get("/:userId/site/:siteId/controls/valves", async (req, res, next) => {
   Valves.findAll({
       where: {
@@ -1128,6 +1127,7 @@ router.get("/:userId/site/:siteId/controls/valves", async (req, res, next) => {
     });
 });
 
+// [밸프 개별 제어 설정] EW-RCR-012
 router.put(
   "/:userId/site/:siteId/controls/valves/:valvesId",
   async (req, res, next) => {
@@ -1178,6 +1178,7 @@ delete from cctvs where cctv_id = 'cctv3';
 select * from cctvs;
  */
 
+// [CCTV 정보 조회] EW-RTR-001
 router.get("/:userId/site/:siteId/cctvs", async (req, res, next) => {
   Cctvs.findAll({
       where: {
@@ -1197,6 +1198,7 @@ router.get("/:userId/site/:siteId/cctvs", async (req, res, next) => {
     });
 });
 
+// [개별 CCTV 리셋] EW-RTR-002
 router.put(
   "/:userId/site/:siteId/cctvs/:cctvId/reset",
   async (req, res, next) => {
@@ -1244,6 +1246,7 @@ router.put(
  *select * from events;
  */
 
+// [사이트 사용자 설정 정보 조회] EW-RSR-001
 router.get("/:userId/site/:siteId/settings", async (req, res, next) => {
   Events.findAll({
       where: {
@@ -1263,6 +1266,7 @@ router.get("/:userId/site/:siteId/settings", async (req, res, next) => {
     });
 });
 
+// [사이트 사용자 설정] EW-RSR-002
 router.put("/:userId/site/:siteId/settings", async (req, res, next) => {
   let site_set_alarm_enable = req.body.site_set_alarm_enable;
   let site_set_alarm_high = req.body.site_set_alarm_high;
@@ -1300,7 +1304,7 @@ router.put("/:userId/site/:siteId/settings", async (req, res, next) => {
   }
 });
 
-// 푸시알림 fcm
+// [추가] 푸시알림 fcm
 router.put("/:userId/pushAlarm", async (req, res, next) => {
   let fcmtoken = req.body.fcmtoken;
   if (!empty(req.params.userId)) {
