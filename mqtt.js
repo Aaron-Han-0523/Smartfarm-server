@@ -225,7 +225,7 @@ var mqttFunction = function (uids) {
         ) {
           sitesUpdate(sitesDatas, index_sid);
         } else if (
-          index_sid != sidList[sidList.length - 1] &&
+          // index_sid != sidList[sidList.length - 1] &&
           sitesDatas["sname"] != undefined
         ) {
           sitesInsert(sitesDatas, index_sid);
@@ -256,8 +256,7 @@ var mqttFunction = function (uids) {
       let sensor_id = keys[i].toString();
       let time_stamp = ssdatas["t"].toString();
       let value = ssdatas[keys[i]].toString();
-      connection.query("insert ignore into trends values (?,?,?,?,?,?);", [
-        ,
+      connection.query("insert ignore into trends values (?,?,?,?,?,?);", [,
         sensor_id,
         index_sid,
         uid,
@@ -269,7 +268,7 @@ var mqttFunction = function (uids) {
   }
 
   //events table에 insert
-  function evtInsert(evtDatas) {
+  function evtInsert(evtDatas, index_sid) {
     // var keys = Object.keys(evt_update);
     console.log("site_id" + site_id);
 
@@ -424,9 +423,9 @@ var mqttFunction = function (uids) {
       mech == "soilhumid"
     ) {
       cnt =
-        mech_datas[mech + "_ss_cnt"] == undefined
-          ? 0
-          : mech_datas[mech + "_ss_cnt"];
+        mech_datas[mech + "_ss_cnt"] == undefined ?
+        0 :
+        mech_datas[mech + "_ss_cnt"];
     } else {
       cnt =
         mech_datas[mech + "_cnt"] == undefined ? 0 : mech_datas[mech + "_cnt"];
@@ -479,9 +478,9 @@ var mqttFunction = function (uids) {
       } else if (mech == "motor") {
         var motor_name = mech_datas[mech + "_name_" + (index + 1)];
         var motor_type =
-          motor_name.split("_")[1] == null
-            ? motor_name.split(" ")[1]
-            : motor_name.split("_")[1];
+          motor_name.split("_")[1] == null ?
+          motor_name.split(" ")[1] :
+          motor_name.split("_")[1];
         connection.query(
           "insert into motors values (?,?,?,?,'?',?);",
           [mech + "_" + (index + 1), index_sid, uid, motor_type, 0, motor_name],
@@ -512,7 +511,7 @@ var mqttFunction = function (uids) {
         var valve_name = mech_datas[mech + "_name_" + (index + 1)];
         connection.query(
           "insert into valves values (?,?,?,'?',?);",
-          [mech + "_" + (index + 1), index_sid, uid, 0, ,],
+          [mech + "_" + (index + 1), index_sid, uid, 0, , ],
           function test(error, results, fields) {
             if (results == undefined) {
               connection.query(
