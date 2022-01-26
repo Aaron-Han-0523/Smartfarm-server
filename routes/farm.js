@@ -10,7 +10,7 @@ const stringify = require("json-stringify-pretty-compact"); //json 값을 문자
 
 let router = express.Router();
 
-var resMQTT=require('../mqtt.js')
+var resMQTT = require('../mqtt.js')
 
 const {
   User,
@@ -64,100 +64,12 @@ router.get("/loginCheck", (req, res) => {
   }
 });
 
-router.post("/login", (req, res, next) => {
-  let userId = req.body.uid;
-  let password = req.body.password;
-  if (!empty(userId) && !empty(password)) {
-    User.findOne({
-        where: {
-          uid: userId,
-        },
-      })
-      .then((results) => {
-        if (!results) {
-          res.json({
-            result: false,
-            error: null,
-            data: null,
-          });
-          console.log("아이디가 없음");
-          // res.status(400).send("error");
-        }
-        bcrypt.compare(password, results.password, (error, result) => {
-          if (result) {
-            req.session.loginData = userId;
-            req.session.save(() => {
-              console.log("/loginout 라우팅 함수호출 됨");
-              console.log(req.session.loginData);
-              res.json({
-                results,
-                result: true,
-              });
-              resMQTT(userId);
-              console.log(result);
-            });
-          } else {
-            res.json({
-              result: false,
-              error: null,
-              data: null,
-            });
-          }
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  } else {
-    res.json({
-      result: false,
-      error: null,
-      data: null,
-    });
-    // res.status(400).send("ID/Password is wrong");
-  }
-});
 
-router.post("/logout", (req, res) => {
-  console.log("/loginout 라우팅 함수호출 됨");
-  console.log(req.session.loginData);
-  console.log(req.session);
-  // console.log('@@@@@@@@@@@@@@',req);
-  if (req.session.loginData) {
-    console.log("로그아웃 처리");
-    req.session.destroy(function (err) {
-      if (err) {
-        console.log("세션 삭제시 에러");
-      }
-      console.log("세션 삭제 성공");
-      res.json({
-        result: true,
-      });
-    }); //세션정보 삭제
-  } else {
-    console.log("로긴 안되어 있음");
-    res.json({
-      result: false,
-      error: null,
-      data: null,
-    });
-  }
-});
+/**
+[REST API - 사용자]
+ */
 
-router.get("/account", async (req, res, next) => {
-  User.findAll({})
-    .then((result) => {
-      // res.json({"data":result, test: "test", error: null})
-      res.json(result);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.json({
-        error: null,
-      });
-    });
-});
-
+// [계정 생성] EW-RUR-001
 router.post("/account", async (req, res, next) => {
   let uid = req.body.uid;
   let password = req.body.password;
@@ -196,12 +108,9 @@ router.post("/account", async (req, res, next) => {
   }
 });
 
-router.get("/:userId", async (req, res, next) => {
-  User.findAll({
-      where: {
-        uid: req.params.userId,
-      },
-    })
+// [계정 조회] EW-RUR-002
+router.get("/account", async (req, res, next) => {
+  User.findAll({})
     .then((result) => {
       // res.json({"data":result, test: "test", error: null})
       res.json(result);
@@ -214,6 +123,129 @@ router.get("/:userId", async (req, res, next) => {
     });
 });
 
+// [로그인] EW-RUR-003
+router.post("/login", (req, res, next) => {
+  let userId = req.body.uid;
+  let password = req.body.password;
+  if (!empty(userId) && !empty(password)) {
+    User.findOne({
+        where: {
+          uid: userId,
+        },
+      })
+      .then((results) => {
+        if (!results) {
+          res.json({
+            result: false,
+            error: null,
+            data: null,
+          });
+          console.log("아이디가 없음");
+        }
+        bcrypt.compare(password, results.password, (error, result) => {
+          if (result) {
+            req.session.loginData = userId;
+            req.session.save(() => {
+              console.log("/loginout 라우팅 함수호출 됨");
+              console.log(req.session.loginData);
+              resMQTT(userId);
+              res.json({
+                results,
+                result: true,
+              });
+
+              console.log(result);
+            });
+          } else {
+            res.json({
+              result: false,
+              error: null,
+              data: null,
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null,
+    });
+  }
+});
+
+// [로그아웃] EW-RUR-004
+router.post("/logout", (req, res) => {
+  console.log("/loginout 라우팅 함수호출 됨");
+  console.log(req.session.loginData);
+  console.log(req.session);
+  // console.log('@@@@@@@@@@@@@@',req);
+  if (req.session.loginData) {
+    console.log("로그아웃 처리");
+    req.session.destroy(function (err) {
+      if (err) {
+        console.log("세션 삭제시 에러");
+      }
+      console.log("세션 삭제 성공");
+      res.json({
+        result: true,
+      });
+    }); //세션정보 삭제
+  } else {
+    console.log("로긴 안되어 있음");
+    res.json({
+      result: false,
+      error: null,
+      data: null,
+    });
+  }
+});
+
+// [계정삭제]  EW-RUR-005
+router.delete("/:userId", async (req, res, next) => {
+  if (!empty(req.params.userId)) {
+    User.destroy({
+        where: {
+          uid: req.params.userId,
+        },
+      })
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  } else {
+    res.json({
+      result: false,
+      error: null,
+      data: null,
+    });
+  }
+});
+
+//[+ 추가 - 사용자 아이디 찾기]
+router.get("/:userId", async (req, res, next) => {
+  User.findAll({
+      where: {
+        uid: req.params.userId,
+      },
+    })
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({
+        error: null,
+      });
+    });
+});
+
+// [계정 정보 수정] EW-RUR-006
 router.put("/:userId", async (req, res, next) => {
   let uid = req.body.uid;
   let sid = req.body.sid_base;
@@ -250,7 +282,37 @@ router.put("/:userId", async (req, res, next) => {
   }
 });
 
-// 현재 비밀번호 확인
+// [계정 비밀번호 변경] EW-RUR-007
+router.put("/:userId/password", async (req, res, next) => {
+  let password = req.body.password;
+  bcrypt.hash(password, saltRounds, (error, hash) => {
+    password = hash;
+    User.update({
+        password: password,
+      }, {
+        where: {
+          uid: req.params.userId,
+        },
+      })
+      .then((result) => {
+        res.json({
+          result: result,
+          error: null,
+          data: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({
+          result: false,
+          error: err,
+          data: null,
+        });
+      });
+  });
+});
+
+// [추가 - 현재 비밀번호 확인]
 router.post("/login/:userId/checkpw", async (req, res, next) => {
   let password = req.body.password;
   if (!empty(password)) {
@@ -294,94 +356,7 @@ router.post("/login/:userId/checkpw", async (req, res, next) => {
   }
 });
 
-router.put("/:userId/password", async (req, res, next) => {
-  let password = req.body.password;
-  bcrypt.hash(password, saltRounds, (error, hash) => {
-    password = hash;
-    User.update({
-        password: password,
-      }, {
-        where: {
-          uid: req.params.userId,
-        },
-      })
-      .then((result) => {
-        res.json({
-          result: result,
-          error: null,
-          data: null,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        res.json({
-          result: false,
-          error: err,
-          data: null,
-        });
-      });
-  });
-});
-
-router.delete("/:userId", async (req, res, next) => {
-  if (!empty(req.params.userId)) {
-    User.destroy({
-        where: {
-          uid: req.params.userId,
-        },
-      })
-      .then((result) => {
-        res.json(result);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  } else {
-    res.json({
-      result: false,
-      error: null,
-      data: null,
-    });
-  }
-});
-
-router.get("/:userId/sites", async (req, res, next) => {
-  Sites.findAll({
-      where: {
-        uid: req.params.userId,
-        // sid: req.params.siteId,
-      },
-    }).then((result) => {
-      res.json(result);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.json({
-        error: null,
-      });
-    });
-});
-
-//site_name으로 siteId찾기 
-router.get("/:userId/sites/:siteName", async (req, res, next) => {
-  Sites.findAll({
-      where: {
-        uid: req.params.userId,
-        site_name: req.params.siteName
-        // sid: req.params.siteId,
-      },
-    }).then((result) => {
-      res.json(result[0]["sid"]);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.json({
-        error: null,
-      });
-    });
-});
-
-
+// [사이트 생성] EW-RUR-008
 router.post("/:userId/sites", async (req, res, next) => {
   let sid = req.body.sid;
   //   let uid = req.body.uid;
@@ -447,15 +422,14 @@ router.post("/:userId/sites", async (req, res, next) => {
   }
 });
 
-router.get("/:userId/sites/:siteId", async (req, res, next) => {
+// [사이트 리스트 조회] EW-RUR-009
+router.get("/:userId/sites", async (req, res, next) => {
   Sites.findAll({
       where: {
         uid: req.params.userId,
-        sid: req.params.siteId,
+        // sid: req.params.siteId,
       },
-    })
-    .then((result) => {
-      // res.json({"data":result, test: "test", error: null})
+    }).then((result) => {
       res.json(result);
     })
     .catch((err) => {
@@ -466,7 +440,45 @@ router.get("/:userId/sites/:siteId", async (req, res, next) => {
     });
 });
 
+// [추가] site_name으로 siteId찾기 
+router.get("/:userId/sites/:siteName", async (req, res, next) => {
+  Sites.findAll({
+      where: {
+        uid: req.params.userId,
+        site_name: req.params.siteName
+        // sid: req.params.siteId,
+      },
+    }).then((result) => {
+      res.json(result[0]["sid"]);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({
+        error: null,
+      });
+    });
+});
 
+// [사이트 구성 조회] EW-RUR-010
+router.get("/:userId/sites/:siteId", async (req, res, next) => {
+  Sites.findAll({
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({
+        error: null,
+      });
+    });
+});
+
+// [사이트 삭제] EW-RUR-011
 router.delete("/:userId/sites/:siteId", async (req, res, next) => {
   if (!empty(req.params.userId)) {
     Sites.destroy({
@@ -490,6 +502,7 @@ router.delete("/:userId/sites/:siteId", async (req, res, next) => {
   }
 });
 
+// [사이트 수정] EW-RUR-012
 router.put("/:userId/sites/:siteId", async (req, res, next) => {
   let site_name = req.body.site_name;
   let site_address = req.body.site_address;
@@ -551,10 +564,15 @@ router.put("/:userId/sites/:siteId", async (req, res, next) => {
   }
 });
 
+
+/**
+[REST API - 모니터링]
+ */
+
+// [전체 센서 정보 조회] EW-RMR-001
 router.get("/:userId/site/:siteId/sensors", async (req, res, next) => {
   Sensors.findAll({})
     .then((result) => {
-      // res.json({"data":result, test: "test", error: null})
       res.json(result);
     })
     .catch((err) => {
@@ -565,10 +583,7 @@ router.get("/:userId/site/:siteId/sensors", async (req, res, next) => {
     });
 });
 
-// walter
-
-//////////walter*
-
+// [센서 정보 조회] EW-RMR-002
 router.get(
   "/:userId/site/:siteId/sensors/:sensorId",
   async (req, res, next) => {
@@ -595,6 +610,7 @@ router.get(
   }
 );
 
+// [센서 트렌드 조회] EW-RMR-003
 router.get(
   "/:userId/site/:siteId/sensors/:sensorId/trends",
   async (req, res, next) => {
@@ -622,6 +638,7 @@ router.get(
   }
 );
 
+// [추가] innerTemps 조회 
 router.get(
   "/:userId/site/:siteId/innerTemps",
   async (req, res, next) => {
@@ -653,7 +670,11 @@ router.get(
   }
 );
 
+/**
+[REST API - 제어]
+ */
 
+// [측창 개폐기 제어 상태 조회] EW-RCR-001
 router.get(
   "/:userId/site/:siteId/controls/side/motors",
 
@@ -679,6 +700,7 @@ router.get(
   }
 );
 
+// [측창 개폐기 전체 제어 설정] EW-RCR-002
 router.put(
   "/:userId/site/:siteId/controls/side/motors",
 
@@ -713,15 +735,16 @@ router.put(
   }
 );
 
+// [측창 개폐기 개별 제어 설정] EW-RCR-003
 router.put(
   "/:userId/site/:siteId/controls/side/motors/:motorId",
   async (req, res, next) => {
     // let motor_type = req.body.motor_type;
-    let motor_name = req.body.motor_name;
+    // let motor_name = req.body.motor_name;
     let motor_action = req.body.motor_action;
     Motors.update({
         // motor_type: motor_type,
-        motor_name: motor_name,
+        // motor_name: motor_name,
         motor_action: motor_action,
       }, {
         where: {
@@ -747,6 +770,7 @@ router.put(
   }
 );
 
+// [천창 개폐기 제어 상태 조회] EW-RCR-004
 router.get(
   "/:userId/site/:siteId/controls/top/motors",
   async (req, res, next) => {
@@ -773,6 +797,86 @@ router.get(
         });
     } else {
       res.json(err);
+    }
+  }
+);
+
+//[천창 개폐기 전체 제어 설정] EW-RCR-005
+router.put(
+  "/:userId/site/:siteId/controls/top/motors",
+  async (req, res, next) => {
+    // let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action
+    if (!empty(req.params.siteId)) {
+      Motors.update({
+          // motor_name: motor_name,
+          motor_action: motor_action,
+          // motor_id: req.params.motorId
+        }, {
+          where: {
+            uid: req.params.userId,
+            sid: req.params.siteId,
+            motor_type: "top",
+          },
+        })
+        .then((result) => {
+          res.json(result);
+        })
+        .catch((err) => {
+          console.error(err);
+          res.json({
+            result: false,
+            error: err,
+            data: null,
+          });
+        });
+    } else {
+      res.json({
+        result: false,
+        error: null,
+        data: null,
+      });
+    }
+  }
+);
+
+// [천창 개폐기 개별 제어 설정] EW-RCR-006
+router.put(
+  "/:userId/site/:siteId/controls/top/motors/:motorId",
+  async (req, res, next) => {
+    // let motor_name = req.body.motor_name;
+    let motor_action = req.body.motor_action
+    if (!empty(req.params.motorId)) {
+      Motors.update({
+          // motor_type: motor_type,
+          motor_action: motor_action,
+          // motor_name: motor_name,
+          // motor_id: req.params.motorId,
+        }, {
+          where: {
+            uid: req.params.userId,
+            sid: req.params.siteId,
+            motor_id: req.params.motorId,
+            motor_type: "top",
+          },
+        })
+        .then((result) => {
+          res.json(result);
+        })
+        .catch((err) => {
+          console.error(err);
+          res.json({
+            result: false,
+            error: err,
+            data: null,
+          });
+        });
+    } else {
+      res.json({
+        result: false,
+        error: null,
+        data: null,
+      });
     }
   }
 );
@@ -873,6 +977,123 @@ router.put(
           error: null,
         });
       });
+  }
+);
+
+// [기타 제어 상태 조회] EW-RCR-007
+router.get(
+  "/:userId/site/:siteId/controls/actuators",
+  async (req, res, next) => {
+    Actuators.findAll({
+        where: {
+          uid: req.params.userId,
+          sid: req.params.siteId,
+        },
+      })
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({
+          error: null,
+        });
+      });
+  }
+);
+
+// [개별 기타 제어 설정] EW-RCR-008
+router.put(
+  "/:userId/site/:siteId/controls/actuators/:actuatorId",
+  async (req, res, next) => {
+    let acturator_type = req.body.acturator_type;
+    let acturator_name = req.body.acturator_name;
+    if (!empty(req.params.actuatorId)) {
+      Actuators.update({
+          acturator_type: acturator_type,
+          acturator_name: acturator_name,
+        }, {
+          where: {
+            uid: req.params.userId,
+            sid: req.params.siteId,
+            motor_id: req.params.actuatorId,
+          },
+        })
+        .then((result) => {
+          res.json(result);
+        })
+        .catch((err) => {
+          console.error(err);
+          res.json({
+            result: false,
+            error: err,
+            data: null,
+          });
+        });
+    } else {
+      res.json({
+        result: false,
+        error: null,
+        data: null,
+      });
+    }
+  }
+);
+
+// [관수 펌프 제어 상태 조회] EW-RCR-009
+router.get("/:userId/site/:siteId/controls/pumps", async (req, res, next) => {
+  Pumps.findAll({
+      where: {
+        uid: req.params.userId,
+        sid: req.params.siteId,
+      },
+    })
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        error: null,
+      });
+    });
+});
+
+// [관수 펌프 개별 제어 설정] EW-RCR-010
+router.put(
+  "/:userId/site/:siteId/controls/pumps/:pumpId",
+  async (req, res, next) => {
+    let pump_action = req.body.pump_action;
+    let pump_name = req.body.pump_name;
+    if (!empty(req.params.pumpId)) {
+      Pumps.update({
+          pump_action: pump_action,
+          pump_name: pump_name,
+        }, {
+          where: {
+            uid: req.params.userId,
+            sid: req.params.siteId,
+            pump_id: req.params.pumpId,
+          },
+        })
+        .then((result) => {
+          res.json(result);
+        })
+        .catch((err) => {
+          console.error(err);
+          res.json({
+            result: false,
+            error: err,
+            data: null,
+          });
+        });
+    } else {
+      res.json({
+        result: false,
+        error: null,
+        data: null,
+      });
+    }
   }
 );
 
@@ -1109,205 +1330,5 @@ router.put("/:userId/pushAlarm", async (req, res, next) => {
   }
 });
 
-/*
-mark
-*/
-
-// 관수 펌프 제어 상태 조회
-router.get("/:userId/site/:siteId/controls/pumps", async (req, res, next) => {
-  Pumps.findAll({
-      where: {
-        uid: req.params.userId,
-        sid: req.params.siteId,
-      },
-    })
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json({
-        error: null,
-      });
-    });
-});
-
-// 관수 펌프 개별 제어 설정
-router.put(
-  "/:userId/site/:siteId/controls/pumps/:pumpId",
-  async (req, res, next) => {
-    let pump_action = req.body.pump_action;
-    let pump_name = req.body.pump_name;
-    if (!empty(req.params.pumpId)) {
-      Pumps.update({
-          pump_action: pump_action,
-          pump_name: pump_name,
-        }, {
-          where: {
-            uid: req.params.userId,
-            sid: req.params.siteId,
-            pump_id: req.params.pumpId,
-          },
-        })
-        .then((result) => {
-          res.json(result);
-        })
-        .catch((err) => {
-          console.error(err);
-          res.json({
-            result: false,
-            error: err,
-            data: null,
-          });
-        });
-    } else {
-      res.json({
-        result: false,
-        error: null,
-        data: null,
-      });
-    }
-  }
-);
-
-// 기타 제어 설정 정보 조회
-router.get(
-  "/:userId/site/:siteId/controls/actuators",
-  async (req, res, next) => {
-    Actuators.findAll({
-        where: {
-          uid: req.params.userId,
-          sid: req.params.siteId,
-        },
-      })
-      .then((result) => {
-        res.json(result);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.json({
-          error: null,
-        });
-      });
-  }
-);
-
-// 기타 제어 정보 설정
-router.put(
-  "/:userId/site/:siteId/controls/actuators/:actuatorId",
-  async (req, res, next) => {
-    let acturator_type = req.body.acturator_type;
-    let acturator_name = req.body.acturator_name;
-    if (!empty(req.params.actuatorId)) {
-      Actuators.update({
-          acturator_type: acturator_type,
-          acturator_name: acturator_name,
-        }, {
-          where: {
-            uid: req.params.userId,
-            sid: req.params.siteId,
-            motor_id: req.params.actuatorId,
-          },
-        })
-        .then((result) => {
-          res.json(result);
-        })
-        .catch((err) => {
-          console.error(err);
-          res.json({
-            result: false,
-            error: err,
-            data: null,
-          });
-        });
-    } else {
-      res.json({
-        result: false,
-        error: null,
-        data: null,
-      });
-    }
-  }
-);
-
-//전체 천창 개폐기의 제어 정보(전체 열림, 전체 정지, 전체 닫힘)를 설정
-router.put(
-  "/:userId/site/:siteId/controls/top/motors",
-  async (req, res, next) => {
-    let motor_name = req.body.motor_name;
-    let motor_action = req.body.motor_action
-    if (!empty(req.params.siteId)) {
-      Motors.update({
-          motor_name: motor_name,
-          motor_action: motor_action,
-          // motor_id: req.params.motorId
-        }, {
-          where: {
-            uid: req.params.userId,
-            sid: req.params.siteId,
-            motor_type: "top",
-          },
-        })
-        .then((result) => {
-          res.json(result);
-        })
-        .catch((err) => {
-          console.error(err);
-          res.json({
-            result: false,
-            error: err,
-            data: null,
-          });
-        });
-    } else {
-      res.json({
-        result: false,
-        error: null,
-        data: null,
-      });
-    }
-  }
-);
-
-// 개별 천창 개폐기의 제어 정보(열림, 정지, 닫힘)를 설정
-router.put(
-  "/:userId/site/:siteId/controls/top/motors/:motorId",
-  async (req, res, next) => {
-    let motor_name = req.body.motor_name;
-    let motor_action = req.body.motor_action
-    if (!empty(req.params.motorId)) {
-      Motors.update({
-          // motor_type: motor_type,
-          motor_action: motor_action,
-          motor_name: motor_name,
-          // motor_id: req.params.motorId,
-        }, {
-          where: {
-            uid: req.params.userId,
-            sid: req.params.siteId,
-            motor_id: req.params.motorId,
-            motor_type: "top",
-          },
-        })
-        .then((result) => {
-          res.json(result);
-        })
-        .catch((err) => {
-          console.error(err);
-          res.json({
-            result: false,
-            error: err,
-            data: null,
-          });
-        });
-    } else {
-      res.json({
-        result: false,
-        error: null,
-        data: null,
-      });
-    }
-  }
-);
 
 module.exports = router;

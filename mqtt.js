@@ -107,13 +107,13 @@ var mqttFunction = function (uids) {
           console.log("//////////////////////////");
 
           mqttData();
-          _evtCode();
+          // _evtCode();
         } else {
           console.log("여기냐");
           sidList.push("e0000001");
           site_id = "e0000001";
           mqttData();
-          _evtCode();
+          // _evtCode();
         }
 
         console.log("inner data" + sidList.length);
