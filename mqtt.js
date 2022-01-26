@@ -168,7 +168,8 @@ var mqttFunction = function (uids) {
         console.log("message is " + message);
         console.log("topic is " + topic);
         console.log("trend_index_sid" + index_sid);
-
+        var ss_topic = topic.split("/")[2];
+        console.log('ss_topic'+ss_topic)
         var ss_datas = JSON.parse(message.toString());
         console.log("trend_index_datas " + i + " " + ss_datas);
         schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
@@ -177,7 +178,7 @@ var mqttFunction = function (uids) {
         });
         if (trend_update == true) {
           console.log("바뀌냐2" + trend_update);
-          sqlUpdate(ss_datas, index_sid);
+          sqlUpdate(ss_datas, ss_topic);
           trend_update = false;
           console.log("trend_update" + trend_update);
           console.log("sql");
@@ -194,14 +195,16 @@ var mqttFunction = function (uids) {
         console.log("evt_update " + evt_update);
         console.log("message is " + message);
         console.log("topic is " + topic);
-
+        var evt_topic = topic.split("/")[2];
+        console.log('evt_topic'+evt_topic)
         var evtDatas = JSON.parse(message.toString());
         console.log("evdatas" + evtDatas);
 
-        if (evt_update == true && evtDatas["ev"] != undefined) {
-          evtUpdate(evtDatas, index_sid);
-        } else if (evt_update == false && evtDatas["ev"] != undefined) {
-          evtInsert(evtDatas, index_sid);
+        // if (evt_update == true && evtDatas["ev"] != undefined) {
+        //   evtUpdate(evtDatas, index_sid);
+        // } else
+        if (evtDatas["ec"] != undefined) {
+          evtInsert(evtDatas, evt_topic);
           evt_update = true;
         }
       });
@@ -217,30 +220,34 @@ var mqttFunction = function (uids) {
         // console.log("evt_update " + sites_update);
         console.log("message is " + message);
         console.log("topic is " + topic);
+
+        var cfg_topic = topic.split("/")[2];
+        console.log('cfg_topic'+cfg_topic)
         var sitesDatas = JSON.parse(message.toString());
 
+        // if (
+        //   index_sid == sidList[sidList.length - 1] &&
+        //   sitesDatas["sname"] != undefined
+        // ) {
+        //   sitesUpdate(sitesDatas, index_sid);
+        // } else
         if (
-          index_sid == sidList[sidList.length - 1] &&
-          sitesDatas["sname"] != undefined
-        ) {
-          sitesUpdate(sitesDatas, index_sid);
-        } else if (
           // index_sid != sidList[sidList.length - 1] &&
           sitesDatas["sname"] != undefined
         ) {
-          sitesInsert(sitesDatas, index_sid);
+          sitesInsert(sitesDatas, cfg_topic);
           // sites_update = true;
         }
 
         if (sitesDatas["sname"] != undefined) {
-          mechInsert(sitesDatas, "temp", index_sid);
-          mechInsert(sitesDatas, "humid", index_sid);
-          mechInsert(sitesDatas, "exttemp", index_sid);
-          mechInsert(sitesDatas, "soiltemp", index_sid);
-          mechInsert(sitesDatas, "soilhumid", index_sid);
-          mechInsert(sitesDatas, "motor", index_sid);
-          mechInsert(sitesDatas, "pump", index_sid);
-          mechInsert(sitesDatas, "valve", index_sid);
+          mechInsert(sitesDatas, "temp", cfg_topic);
+          mechInsert(sitesDatas, "humid", cfg_topic);
+          mechInsert(sitesDatas, "exttemp", cfg_topic);
+          mechInsert(sitesDatas, "soiltemp", cfg_topic);
+          mechInsert(sitesDatas, "soilhumid", cfg_topic);
+          mechInsert(sitesDatas, "motor", cfg_topic);
+          mechInsert(sitesDatas, "pump", cfg_topic);
+          mechInsert(sitesDatas, "valve", cfg_topic);
         }
       });
     }
@@ -256,7 +263,8 @@ var mqttFunction = function (uids) {
       let sensor_id = keys[i].toString();
       let time_stamp = ssdatas["t"].toString();
       let value = ssdatas[keys[i]].toString();
-      connection.query("insert ignore into trends values (?,?,?,?,?,?);", [,
+      connection.query("insert ignore into trends values (?,?,?,?,?,?);", [
+        ,
         sensor_id,
         index_sid,
         uid,
@@ -270,38 +278,72 @@ var mqttFunction = function (uids) {
   //events table에 insert
   function evtInsert(evtDatas, index_sid) {
     // var keys = Object.keys(evt_update);
-    console.log("site_id" + site_id);
+    console.log("evtsite_id" + index_sid);
 
     let time_stamp = evtDatas["t"];
     let event_saverity = evtDatas["ev"];
     let alarm_code = evtDatas["ec"];
     connection.query(
+      "select * from events where sid = ? and uid = ? ;",
+      [index_sid, uid],
+      function test(error, results, fields) {
+        console.log("evt_results" + results);
+        if (results.length==0) {
+          connection.query(
+            "insert ignore into events values (?,?,?,'?',?);",
+            [index_sid, uid, time_stamp, event_saverity, alarm_code],
+            function test(error, results, fields) {
+              if (error) throw error;
+              console.log("evtresults" + results);
+            }
+          );
+        } else {
+          connection.query(
+            "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
+            [time_stamp, event_saverity, alarm_code, index_sid, uid],
+            function test(error, results, fields) {
+              if (error) throw error;
+              console.log("evtresults" + results);
+            }
+          );
+        }
+      }
+    );
+    connection.query(
       "insert ignore into events values (?,?,?,?,'?',?);",
       [, index_sid, uid, time_stamp, event_saverity, alarm_code],
       function test(error, results, fields) {
-        if (error) throw error;
-        console.log("evtresults" + results);
+        if (error) {
+          connection.query(
+            "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
+            [time_stamp, event_saverity, alarm_code, index_sid, uid],
+            function test(error, results, fields) {
+              if (error) throw error;
+              console.log("evtresults" + results);
+            }
+          );
+        }
       }
     );
   }
 
   //events table에 update
-  function evtUpdate(evtDatas, index_sid) {
-    // var keys = Object.keys(evt_update);
-    console.log("Connected!");
+  // function evtUpdate(evtDatas, index_sid) {
+  //   // var keys = Object.keys(evt_update);
+  //   console.log("Connected!");
 
-    var time_stamp = evtDatas["t"];
-    var event_saverity = evtDatas["ev"];
-    var alarm_code = evtDatas["ec"];
-    connection.query(
-      "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
-      [time_stamp, event_saverity, alarm_code, index_sid, uid],
-      function test(error, results, fields) {
-        if (error) throw error;
-        console.log("evtresults" + results);
-      }
-    );
-  }
+  //   var time_stamp = evtDatas["t"];
+  //   var event_saverity = evtDatas["ev"];
+  //   var alarm_code = evtDatas["ec"];
+  //   connection.query(
+  //     "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
+  //     [time_stamp, event_saverity, alarm_code, index_sid, uid],
+  //     function test(error, results, fields) {
+  //       if (error) throw error;
+  //       console.log("evtresults" + results);
+  //     }
+  //   );
+  // }
 
   //sites table에 insert
   function sitesInsert(sitesDatas, index_sid) {
@@ -350,65 +392,92 @@ var mqttFunction = function (uids) {
         site_set_alarm_timer,
       ],
       function test(error, results, fields) {
-        if (error) throw error;
-        console.log("siteinsertsss" + results);
+        if (error) {
+          connection.query(
+            "update sites set site_name=?, site_address=?, site_gps_latitude=?, site_gps_longitude=?, site_th_sensor_count=?, site_soil_sensor_count=?, site_side_motor_count=?, site_top_motor_count=?, site_actuator_count=?, site_pump_count=?,  site_valve_count=?, site_cctv_count=?, site_set_alarm_enable=?, site_set_alarm_high=?, site_set_alarm_low=?, site_set_alarm_timer=? where sid = ? and uid = ? ;",
+            [
+              site_name,
+              site_address,
+              site_gps_latitude,
+              site_gps_longitude,
+              site_th_sensor_count,
+              site_soil_sensor_count,
+              site_side_motor_count,
+              site_top_motor_count,
+              site_actuator_count,
+              site_pump_count,
+              site_valve_count,
+              site_cctv_count,
+              site_set_alarm_enable,
+              site_set_alarm_high,
+              site_set_alarm_low,
+              site_set_alarm_timer,
+              index_sid,
+              uid,
+            ],
+            function test(error, results, fields) {
+              if (error) throw error;
+              console.log("evtresults" + results);
+            }
+          );
+        }
       }
     );
   }
 
   //sites table에 update
-  function sitesUpdate(sitesDatas, index_sid) {
-    // var keys = Object.keys(evt_update);
-    console.log("sites updatesss!");
+  // function sitesUpdate(sitesDatas, index_sid) {
+  //   // var keys = Object.keys(evt_update);
+  //   console.log("sites updatesss!");
 
-    let site_name = sitesDatas["sname"];
-    let site_address = 'sitesDatas[""]';
-    let site_gps_latitude = sitesDatas["gps_x"];
-    let site_gps_longitude = sitesDatas["gps_y"];
-    let site_th_sensor_count =
-      sitesDatas["temp_ss_cnt"] +
-      sitesDatas["humid_ss_cnt"] +
-      sitesDatas["exttemp_ss_cnt"];
-    let site_soil_sensor_count =
-      sitesDatas["soiltemp_ss_cnt"] + sitesDatas["soilhumid_ss_cnt"];
-    let site_side_motor_count = sitesDatas["motor_cnt"];
-    let site_top_motor_count = sitesDatas["motor_cnt"];
-    let site_actuator_count = "sitesDatas[]";
-    let site_pump_count = sitesDatas["pump_cnt"];
-    let site_valve_count = sitesDatas["valve_cnt"];
-    let site_cctv_count = "sitesDatas[]";
-    let site_set_alarm_enable = sitesDatas["alarm_en"];
-    let site_set_alarm_high = sitesDatas["alarm_high_temp"];
-    let site_set_alarm_low = sitesDatas["alarm_low_temp"];
-    let site_set_alarm_timer = sitesDatas["watering_timer"];
-    connection.query(
-      "update sites set site_name=?, site_address=?, site_gps_latitude=?, site_gps_longitude=?, site_th_sensor_count=?, site_soil_sensor_count=?, site_side_motor_count=?, site_top_motor_count=?, site_actuator_count=?, site_pump_count=?,  site_valve_count=?, site_cctv_count=?, site_set_alarm_enable=?, site_set_alarm_high=?, site_set_alarm_low=?, site_set_alarm_timer=? where sid = ? and uid = ? ;",
-      [
-        site_name,
-        site_address,
-        site_gps_latitude,
-        site_gps_longitude,
-        site_th_sensor_count,
-        site_soil_sensor_count,
-        site_side_motor_count,
-        site_top_motor_count,
-        site_actuator_count,
-        site_pump_count,
-        site_valve_count,
-        site_cctv_count,
-        site_set_alarm_enable,
-        site_set_alarm_high,
-        site_set_alarm_low,
-        site_set_alarm_timer,
-        index_sid,
-        uid,
-      ],
-      function test(error, results, fields) {
-        if (error) throw error;
-        console.log("evtresults" + results);
-      }
-    );
-  }
+  //   let site_name = sitesDatas["sname"];
+  //   let site_address = 'sitesDatas[""]';
+  //   let site_gps_latitude = sitesDatas["gps_x"];
+  //   let site_gps_longitude = sitesDatas["gps_y"];
+  //   let site_th_sensor_count =
+  //     sitesDatas["temp_ss_cnt"] +
+  //     sitesDatas["humid_ss_cnt"] +
+  //     sitesDatas["exttemp_ss_cnt"];
+  //   let site_soil_sensor_count =
+  //     sitesDatas["soiltemp_ss_cnt"] + sitesDatas["soilhumid_ss_cnt"];
+  //   let site_side_motor_count = sitesDatas["motor_cnt"];
+  //   let site_top_motor_count = sitesDatas["motor_cnt"];
+  //   let site_actuator_count = "sitesDatas[]";
+  //   let site_pump_count = sitesDatas["pump_cnt"];
+  //   let site_valve_count = sitesDatas["valve_cnt"];
+  //   let site_cctv_count = "sitesDatas[]";
+  //   let site_set_alarm_enable = sitesDatas["alarm_en"];
+  //   let site_set_alarm_high = sitesDatas["alarm_high_temp"];
+  //   let site_set_alarm_low = sitesDatas["alarm_low_temp"];
+  //   let site_set_alarm_timer = sitesDatas["watering_timer"];
+  //   connection.query(
+  //     "update sites set site_name=?, site_address=?, site_gps_latitude=?, site_gps_longitude=?, site_th_sensor_count=?, site_soil_sensor_count=?, site_side_motor_count=?, site_top_motor_count=?, site_actuator_count=?, site_pump_count=?,  site_valve_count=?, site_cctv_count=?, site_set_alarm_enable=?, site_set_alarm_high=?, site_set_alarm_low=?, site_set_alarm_timer=? where sid = ? and uid = ? ;",
+  //     [
+  //       site_name,
+  //       site_address,
+  //       site_gps_latitude,
+  //       site_gps_longitude,
+  //       site_th_sensor_count,
+  //       site_soil_sensor_count,
+  //       site_side_motor_count,
+  //       site_top_motor_count,
+  //       site_actuator_count,
+  //       site_pump_count,
+  //       site_valve_count,
+  //       site_cctv_count,
+  //       site_set_alarm_enable,
+  //       site_set_alarm_high,
+  //       site_set_alarm_low,
+  //       site_set_alarm_timer,
+  //       index_sid,
+  //       uid,
+  //     ],
+  //     function test(error, results, fields) {
+  //       if (error) throw error;
+  //       console.log("evtresults" + results);
+  //     }
+  //   );
+  // }
 
   //각 장치 table에 insert/update
   function mechInsert(mech_datas, mech, index_sid) {
@@ -423,9 +492,9 @@ var mqttFunction = function (uids) {
       mech == "soilhumid"
     ) {
       cnt =
-        mech_datas[mech + "_ss_cnt"] == undefined ?
-        0 :
-        mech_datas[mech + "_ss_cnt"];
+        mech_datas[mech + "_ss_cnt"] == undefined
+          ? 0
+          : mech_datas[mech + "_ss_cnt"];
     } else {
       cnt =
         mech_datas[mech + "_cnt"] == undefined ? 0 : mech_datas[mech + "_cnt"];
@@ -478,9 +547,9 @@ var mqttFunction = function (uids) {
       } else if (mech == "motor") {
         var motor_name = mech_datas[mech + "_name_" + (index + 1)];
         var motor_type =
-          motor_name.split("_")[1] == null ?
-          motor_name.split(" ")[1] :
-          motor_name.split("_")[1];
+          motor_name.split("_")[1] == null
+            ? motor_name.split(" ")[1]
+            : motor_name.split("_")[1];
         connection.query(
           "insert into motors values (?,?,?,?,'?',?);",
           [mech + "_" + (index + 1), index_sid, uid, motor_type, 0, motor_name],
@@ -511,7 +580,7 @@ var mqttFunction = function (uids) {
         var valve_name = mech_datas[mech + "_name_" + (index + 1)];
         connection.query(
           "insert into valves values (?,?,?,'?',?);",
-          [mech + "_" + (index + 1), index_sid, uid, 0, , ],
+          [mech + "_" + (index + 1), index_sid, uid, 0, ,],
           function test(error, results, fields) {
             if (results == undefined) {
               connection.query(
