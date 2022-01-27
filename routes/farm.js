@@ -1006,12 +1006,12 @@ router.put(
   "/:userId/site/:siteId/controls/actuators/:actuatorId",
   async (req, res, next) => {
     console.log('act1')
-    let actuator_type = req.body.actuator_type;
-    let actuator_name = req.body.actuator_name;
+    let actuator_action = req.body.actuator_action;
+    // let actuator_name = req.body.actuator_name;
     if (!empty(req.params.actuatorId)) {
       Actuators.update({
-        actuator_type: actuator_type,
-        actuator_name: actuator_name,
+          actuator_action: actuator_action,
+          // actuator_name: actuator_name,
         }, {
           where: {
             uid: req.params.userId,
@@ -1021,7 +1021,7 @@ router.put(
         })
         .then((result) => {
           res.json(result);
-          console.log('act2'+result)
+          console.log('act2' + result)
         })
         .catch((err) => {
           console.error(err);
