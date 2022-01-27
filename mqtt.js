@@ -49,21 +49,21 @@ var mqttFunction = function (uids) {
   // });
 
   //sql(edgeworks)
-  // var connection = mysql.createConnection({
-  //   host: "14.46.231.48",
-  //   user: "edgeworks",
-  //   password: "jsoftware1!",
-  //   database: "smartfarm",
-  //   multipleStatements: true,
-  // });
-
   var connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
+    host: "14.46.231.48",
+    user: "edgeworks",
+    password: "jsoftware1!",
     database: "smartfarm",
     multipleStatements: true,
   });
+
+  // var connection = mysql.createConnection({
+  //   host: "localhost",
+  //   user: "root",
+  //   password: "root",
+  //   database: "smartfarm",
+  //   multipleStatements: true,
+  // });
 
   // run
   sqlQuery();
