@@ -337,7 +337,7 @@ router.post("/login/:userId/checkpw", async (req, res, next) => {
             });
           } else {
             res.json({
-              result: false,
+              result: 'false1', // 비밀번호가 다를 경우
               error: null,
               data: null,
             });
@@ -345,7 +345,12 @@ router.post("/login/:userId/checkpw", async (req, res, next) => {
         });
       })
       .catch((err) => {
-        console.error(err);
+        // console.error(err);
+        res.json({
+          result: 'false2',
+          error: null,
+          data: null,
+        });
       });
   } else {
     res.json({
