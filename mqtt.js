@@ -27,9 +27,17 @@ var mqttFunction = function (uids) {
   var admin = require("firebase-admin");
   var serviceAccount = require("./config/smartfarm-f4f8a-firebase-adminsdk-dcwir-9352731a71.json");
   const isEmpty = require("is-empty");
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } else {
+    admin.app(); // 이미 초기화되었다면, 초기화 된 것을 사용함
+  }
+  // admin.initializeApp({
+  //   credential: admin.credential.cert(serviceAccount),
+  // });
 
   //sql(aws)
   // var connection = mysql.createConnection({
@@ -96,8 +104,6 @@ var mqttFunction = function (uids) {
           }
           sidList.push("e000000" + (results.length + 1));
 
-          // sites_update = true;
-
           console.log("//////////////////////////");
           console.log("The alarm_en is: ", alarm_en);
           console.log("The alarm_high_temp is: ", alarm_high_temp);
@@ -124,9 +130,7 @@ var mqttFunction = function (uids) {
       "select * from events where uid=?",
       uid,
       function test(error, results, fields) {
-        console.log("results datas: " + results);
-        // if (error) throw error;
-
+        console.log("results datas: " + results)
         if (!isEmpty(results)) {
           evt_update = true;
           // alarm_code = results[0].alarm_code;
@@ -134,8 +138,6 @@ var mqttFunction = function (uids) {
         }
       }
     );
-
-    // _evtCode();
   }
 
   //// mqtt
@@ -153,7 +155,7 @@ var mqttFunction = function (uids) {
   //데이터 업데이트
   function mqttData() {
     console.log("hidata" + sidList);
-    console.log("hidata" + sidList.length);
+    console.log("hidata" + uid);
     //센서 데이터
     for (let i = 0; i < sidList.length; i++) {
       const index_sid = sidList[i];
@@ -169,7 +171,7 @@ var mqttFunction = function (uids) {
         console.log("topic is " + topic);
         console.log("trend_index_sid" + index_sid);
         var ss_topic = topic.split("/")[2];
-        console.log('ss_topic'+ss_topic)
+        console.log("ss_topic" + ss_topic);
         var ss_datas = JSON.parse(message.toString());
         console.log("trend_index_datas " + i + " " + ss_datas);
         schedule.scheduleJob("0 0,10,20,30,40,50 * * * *", function () {
@@ -196,13 +198,10 @@ var mqttFunction = function (uids) {
         console.log("message is " + message);
         console.log("topic is " + topic);
         var evt_topic = topic.split("/")[2];
-        console.log('evt_topic'+evt_topic)
+        console.log("evt_topic" + evt_topic);
         var evtDatas = JSON.parse(message.toString());
         console.log("evdatas" + evtDatas);
 
-        // if (evt_update == true && evtDatas["ev"] != undefined) {
-        //   evtUpdate(evtDatas, index_sid);
-        // } else
         if (evtDatas["ec"] != undefined) {
           evtInsert(evtDatas, evt_topic);
           evt_update = true;
@@ -222,21 +221,13 @@ var mqttFunction = function (uids) {
         console.log("topic is " + topic);
 
         var cfg_topic = topic.split("/")[2];
-        console.log('cfg_topic'+cfg_topic)
+        console.log("cfg_topic" + cfg_topic);
         var sitesDatas = JSON.parse(message.toString());
 
-        // if (
-        //   index_sid == sidList[sidList.length - 1] &&
-        //   sitesDatas["sname"] != undefined
-        // ) {
-        //   sitesUpdate(sitesDatas, index_sid);
-        // } else
         if (
-          // index_sid != sidList[sidList.length - 1] &&
           sitesDatas["sname"] != undefined
         ) {
           sitesInsert(sitesDatas, cfg_topic);
-          // sites_update = true;
         }
 
         if (sitesDatas["sname"] != undefined) {
@@ -248,6 +239,8 @@ var mqttFunction = function (uids) {
           mechInsert(sitesDatas, "motor", cfg_topic);
           mechInsert(sitesDatas, "pump", cfg_topic);
           mechInsert(sitesDatas, "valve", cfg_topic);
+          // mechInsert(sitesDatas, "cctv", cfg_topic);
+          // mechInsert(sitesDatas, "actuator", cfg_topic);
         }
       });
     }
@@ -283,21 +276,12 @@ var mqttFunction = function (uids) {
     let time_stamp = evtDatas["t"];
     let event_saverity = evtDatas["ev"];
     let alarm_code = evtDatas["ec"];
+
     connection.query(
-      "select * from events where sid = ? and uid = ? ;",
-      [index_sid, uid],
+      "insert ignore into events values (?,?,?,'?',?);",
+      [index_sid, uid, time_stamp, event_saverity, alarm_code],
       function test(error, results, fields) {
-        console.log("evt_results" + results);
-        if (results.length==0) {
-          connection.query(
-            "insert ignore into events values (?,?,?,'?',?);",
-            [index_sid, uid, time_stamp, event_saverity, alarm_code],
-            function test(error, results, fields) {
-              if (error) throw error;
-              console.log("evtresults" + results);
-            }
-          );
-        } else {
+        if (error) {
           connection.query(
             "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
             [time_stamp, event_saverity, alarm_code, index_sid, uid],
@@ -309,6 +293,7 @@ var mqttFunction = function (uids) {
         }
       }
     );
+
     connection.query(
       "insert ignore into events values (?,?,?,?,'?',?);",
       [, index_sid, uid, time_stamp, event_saverity, alarm_code],
@@ -327,24 +312,6 @@ var mqttFunction = function (uids) {
     );
   }
 
-  //events table에 update
-  // function evtUpdate(evtDatas, index_sid) {
-  //   // var keys = Object.keys(evt_update);
-  //   console.log("Connected!");
-
-  //   var time_stamp = evtDatas["t"];
-  //   var event_saverity = evtDatas["ev"];
-  //   var alarm_code = evtDatas["ec"];
-  //   connection.query(
-  //     "update events set time_stamp= ?, event_saverity= '?', alarm_code= ? where sid = ? and uid = ? ;",
-  //     [time_stamp, event_saverity, alarm_code, index_sid, uid],
-  //     function test(error, results, fields) {
-  //       if (error) throw error;
-  //       console.log("evtresults" + results);
-  //     }
-  //   );
-  // }
-
   //sites table에 insert
   function sitesInsert(sitesDatas, index_sid) {
     // var keys = Object.keys(evt_update);
@@ -361,10 +328,10 @@ var mqttFunction = function (uids) {
       sitesDatas["soiltemp_ss_cnt"] + sitesDatas["soilhumid_ss_cnt"];
     let site_side_motor_count = sitesDatas["motor_cnt"];
     let site_top_motor_count = sitesDatas["motor_cnt"];
-    let site_actuator_count = "sitesDatas[]";
+    let site_actuator_count = 'sitesDatas["actuator_cnt"]';
     let site_pump_count = sitesDatas["pump_cnt"];
     let site_valve_count = sitesDatas["valve_cnt"];
-    let site_cctv_count = "sitesDatas[]";
+    let site_cctv_count = 'sitesDatas["cctv_cnt"]';
     let site_set_alarm_enable = sitesDatas["alarm_en"];
     let site_set_alarm_high = sitesDatas["alarm_high_temp"];
     let site_set_alarm_low = sitesDatas["alarm_low_temp"];
@@ -424,60 +391,6 @@ var mqttFunction = function (uids) {
       }
     );
   }
-
-  //sites table에 update
-  // function sitesUpdate(sitesDatas, index_sid) {
-  //   // var keys = Object.keys(evt_update);
-  //   console.log("sites updatesss!");
-
-  //   let site_name = sitesDatas["sname"];
-  //   let site_address = 'sitesDatas[""]';
-  //   let site_gps_latitude = sitesDatas["gps_x"];
-  //   let site_gps_longitude = sitesDatas["gps_y"];
-  //   let site_th_sensor_count =
-  //     sitesDatas["temp_ss_cnt"] +
-  //     sitesDatas["humid_ss_cnt"] +
-  //     sitesDatas["exttemp_ss_cnt"];
-  //   let site_soil_sensor_count =
-  //     sitesDatas["soiltemp_ss_cnt"] + sitesDatas["soilhumid_ss_cnt"];
-  //   let site_side_motor_count = sitesDatas["motor_cnt"];
-  //   let site_top_motor_count = sitesDatas["motor_cnt"];
-  //   let site_actuator_count = "sitesDatas[]";
-  //   let site_pump_count = sitesDatas["pump_cnt"];
-  //   let site_valve_count = sitesDatas["valve_cnt"];
-  //   let site_cctv_count = "sitesDatas[]";
-  //   let site_set_alarm_enable = sitesDatas["alarm_en"];
-  //   let site_set_alarm_high = sitesDatas["alarm_high_temp"];
-  //   let site_set_alarm_low = sitesDatas["alarm_low_temp"];
-  //   let site_set_alarm_timer = sitesDatas["watering_timer"];
-  //   connection.query(
-  //     "update sites set site_name=?, site_address=?, site_gps_latitude=?, site_gps_longitude=?, site_th_sensor_count=?, site_soil_sensor_count=?, site_side_motor_count=?, site_top_motor_count=?, site_actuator_count=?, site_pump_count=?,  site_valve_count=?, site_cctv_count=?, site_set_alarm_enable=?, site_set_alarm_high=?, site_set_alarm_low=?, site_set_alarm_timer=? where sid = ? and uid = ? ;",
-  //     [
-  //       site_name,
-  //       site_address,
-  //       site_gps_latitude,
-  //       site_gps_longitude,
-  //       site_th_sensor_count,
-  //       site_soil_sensor_count,
-  //       site_side_motor_count,
-  //       site_top_motor_count,
-  //       site_actuator_count,
-  //       site_pump_count,
-  //       site_valve_count,
-  //       site_cctv_count,
-  //       site_set_alarm_enable,
-  //       site_set_alarm_high,
-  //       site_set_alarm_low,
-  //       site_set_alarm_timer,
-  //       index_sid,
-  //       uid,
-  //     ],
-  //     function test(error, results, fields) {
-  //       if (error) throw error;
-  //       console.log("evtresults" + results);
-  //     }
-  //   );
-  // }
 
   //각 장치 table에 insert/update
   function mechInsert(mech_datas, mech, index_sid) {
@@ -570,9 +483,6 @@ var mqttFunction = function (uids) {
                 }
               );
             }
-            // if (error) {
-            //   console.log('hi');
-            // };
             console.log("mechmotor" + results);
           }
         );
@@ -594,8 +504,73 @@ var mqttFunction = function (uids) {
             }
           }
         );
-      }
-    }
+      }else if (mech == "cctv") {
+        var cctv_name = mech_datas[mech + "_name_" + (index + 1)];
+        var cctv_type =
+          cctv_name.split("_")[1] == null
+            ? cctv_name.split(" ")[1]
+            : cctv_name.split("_")[1];
+        connection.query(
+          "insert into cctvs values (?,?,?,?,?,?);",
+          [mech + "_" + (index + 1), index_sid, uid, cctv_type, cctv_name,'url'],
+          function test(error, results, fields) {
+            if (results == undefined) {
+              connection.query(
+                "update cctvs set cctv_type= ?, cctv_name= ? where cctv_id=? and sid = ? and uid = ? ;",
+                [
+                  cctv_type,
+                  cctv_name,
+                  mech + "_" + (index + 1),
+                  index_sid,
+                  uid,
+                ],
+                function test(error, results, fields) {
+                  if (error) throw error;
+                  console.log("evtresults" + results);
+                }
+              );
+            }
+            // if (error) {
+            //   console.log('hi');
+            // };
+            console.log("mechcctv" + results);
+          }
+        );
+      }else if (mech == "actuator") {
+        var actuator_name = mech_datas[mech + "_name_" + (index + 1)];
+        var actuator_type =
+          actuator_name.split("_")[1] == null
+            ? actuator_name.split(" ")[1]
+            : actuator_name.split("_")[1];
+        connection.query(
+          "insert into actuators values (?,?,?,?,'?',?);",
+          [mech + "_" + (index + 1), index_sid, uid, actuator_type, 0, actuator_name],
+          function test(error, results, fields) {
+            if (results == undefined) {
+              connection.query(
+                "update actuators set actuator_type= ?, actuator_name= ? where actuator_id=? and sid = ? and uid = ? ;",
+                [
+                  actuator_type,
+                  actuator_name,
+                  mech + "_" + (index + 1),
+                  index_sid,
+                  uid,
+                ],
+                function test(error, results, fields) {
+                  if (error) throw error;
+                  console.log("evtresults" + results);
+                }
+              );
+            }
+            // if (error) {
+            //   console.log('hi');
+            // };
+            console.log("mechactuator" + results);
+          }
+        );
+      } 
+    } 
+
   }
 
   // 이벤트 코드 받는 로직
