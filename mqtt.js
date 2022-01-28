@@ -146,11 +146,11 @@ var mqttFunction = function (uids) {
   //https://gist.github.com/smching/ff414e868e80a6ee2fbc8261f8aebb8f
 
   const options = {
-    host: "127.0.0.1",
+    host: "14.46.231.48",
     port: 1883,
   };
 
-  const client = mqtt.connect("mqtt://broker.mqttdashboard.com:1883", options);
+  const client = mqtt.connect("mqtt://14.46.231.48:1883", options);
 
   //데이터 업데이트
   function mqttData() {
