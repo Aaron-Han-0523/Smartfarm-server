@@ -665,7 +665,7 @@ router.get(
         });
       })
       .catch((err,result) => {
-        console.log('')
+        console.log('result : '+result)
         // console.error(err);
         res.json({
           error: null,
