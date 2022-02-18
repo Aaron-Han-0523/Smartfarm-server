@@ -172,7 +172,7 @@ var mqttFunction = function (uids) {
         });
 
         if (trend_update == true) {
-          sqlUpdate(ss_datas, ss_topic, uid);
+          sqlUpdate(ss_datas, ss_topic, uid,connection);
           trend_update = false;
         }
       });
@@ -190,7 +190,7 @@ var mqttFunction = function (uids) {
         var evtDatas = JSON.parse(message.toString());
         console.log("evdatas" + evtDatas);
         if (evtDatas["ec"] != undefined) {
-          evtInsert(evtDatas, evt_topic, uid);
+          evtInsert(evtDatas, evt_topic, uid,connection);
           evt_update = true;
         }
       });
@@ -212,12 +212,12 @@ var mqttFunction = function (uids) {
         var sitesDatas = JSON.parse(message.toString());
 
         if (sitesDatas["sname"] != undefined) {
-          sitesInsert(sitesDatas, cfg_topic, uid);
+          sitesInsert(sitesDatas, cfg_topic, uid,connection);
         }
 
         if (sitesDatas["sname"] != undefined) {
           for (let index = 0; index < mechList.length - 2; index++) {
-            mechInsert(sitesDatas, mechList[index], cfg_topic, uid);
+            mechInsert(sitesDatas, mechList[index], cfg_topic, uid,connection);
           }
         }
       });
