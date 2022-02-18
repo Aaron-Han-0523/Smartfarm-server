@@ -1,11 +1,11 @@
-var sqlUpdate = function (ssdatas, index_sid,uid, connections) {
+var sqlUpdate = function (ssdatas, index_sid,uid,connection) {
   //마이바티스
   const mybatisMapper = require("mybatis-mapper"); //매핑할 마이바티스
   mybatisMapper.createMapper(["./models/mybatis/sqlMapper.xml"]);
 
   // sql
   var db_config = require( "../../config/mysql_config.js");
-  var connection = db_config.connect(connections);
+  // var connection = db_config.init();
   var format = { language: "sql", indent: "  " };
 
 
