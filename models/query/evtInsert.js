@@ -5,7 +5,7 @@ var evtInsert = function (evtDatas, index_sid,uid) {
 
   // sql
   var db_config = require("../../config/mysql_config.js");
-  var connection = db_config.init();
+  var connection = db_config.connect();
   var format = { language: "sql", indent: "  " };
 
   //events table에 insert
