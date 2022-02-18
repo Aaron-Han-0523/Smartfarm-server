@@ -652,6 +652,7 @@ router.get(
           sid: req.params.siteId,
           sensor_id: 'temp_1',
         },
+        order: [['time_stamp', 'DESC']],
         // order: [
         //   ["time_stamp", "DESC"]
         // ],
