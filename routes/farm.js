@@ -653,10 +653,10 @@ router.get(
           sid: req.params.siteId,
           sensor_id: 'temp_1',
         },
-        limit: 120,
         order: [
           ["time_stamp", "DESC"]
         ],
+        limit: 120,
       })
       .then((result) => {
         res.json({
