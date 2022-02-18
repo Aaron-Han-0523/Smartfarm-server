@@ -1,9 +1,12 @@
 {
+  "server":{
+    "port":5000
+  },
   "development": {
-    "username": "edgeworks",
-    "password": "jsoftware1!",
+    "username": "root",
+    "password": "root",
     "database": "smartfarm",
-    "host": "14.46.231.48",
+    "host": "localhost",
     "dialect": "mysql"
   },
   "test": {
@@ -14,10 +17,14 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "username": "edgeworks",
+    "password": "jsoftware1!",
+    "database": "smartfarm",
+    "host": "14.46.231.48",
     "dialect": "mysql"
+  },
+  "mqtt":{
+    "host":"14.46.231.48",
+    "port":1883
   }
 }

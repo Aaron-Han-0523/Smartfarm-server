@@ -1,17 +1,19 @@
+//자주사용하는 라이브러리
 let express = require("express");
 let bodyParser = require("body-parser"); //body의 json을 파싱해주는 모듈
 let dateFormat = require("dateformat"); //날짜형식을 원하는 형태로 바꿔주는 모듈
 let empty = require("is-empty"); //빈값 체크 모듈 *.주의:0도 empty로 판단함
+let router = express.Router();
 
+//비밀번호 암호화
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
+//모튤
 const stringify = require("json-stringify-pretty-compact"); //json 값을 문자열로 (보기좋게)변환해주는 모듈
+var resMQTT = require('../models/query/mqtt.js')
 
-let router = express.Router();
-
-var resMQTT = require('../mqtt.js')
-
+//모델
 const {
   User,
   Trends,
@@ -42,8 +44,6 @@ const {
   Actuators
 } = require("../models");
 
-// testimport DB // king
-
 router.use(
   bodyParser.urlencoded({
     extended: false,
@@ -63,7 +63,6 @@ router.get("/loginCheck", (req, res) => {
     });
   }
 });
-
 
 /**
 [REST API - 사용자]

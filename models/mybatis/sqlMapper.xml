@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mysql">  
+  <select id="fcmParameters">
+    SELECT
+      fcmtoken
+    FROM
+      users 
+    WHERE
+      uid = #{uid}
+  </select>
+  <select id="alarmParameters">
+    SELECT
+      sid, 
+      site_set_alarm_enable, 
+      site_set_alarm_high, 
+      site_set_alarm_low, 
+      site_set_alarm_timer
+    FROM
+      sites 
+    WHERE
+      uid = #{uid}
+  </select>
+  <select id="evtParameters">
+    SELECT
+     *
+    FROM
+      events 
+    WHERE
+      uid = #{uid}
+  </select>
+  <insert id="sqlUpdateParameters">
+    INSERT IGNORE INTO
+      trends (
+        sensor_id,
+        sid,
+        uid,
+        time_stamp,
+        value)
+    VALUES(
+      #{sensor_id},
+      #{sid},
+      #{uid},
+      #{time_stamp},
+      #{value})
+  </insert>
+  <insert id="evtInsertParameters">
+    INSERT INTO
+      events(
+        sid,
+        uid,
+        time_stamp,
+        event_saverity,
+        alarm_code)
+    VALUES(
+      #{sid},
+      #{uid},
+      #{time_stamp},
+      #{event_saverity},
+      #{alarm_code})
+  </insert>
+  <update id="evtUpdateParameters">
+    UPDATE
+      events
+    <set>
+      <if test="uid != null and sid != null">
+        time_stamp = #{time_stamp},
+        event_saverity = #{event_saverity},
+        alarm_code = #{alarm_code}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+  </update>
+  <insert id="sitesInsertParameters">
+    INSERT INTO
+      sites(
+        sid,
+        uid,
+        site_name,
+        site_address,
+        site_gps_latitude,
+        site_gps_longitude,
+        site_th_sensor_count,
+        site_soil_sensor_count,
+        site_side_motor_count,
+        site_top_motor_count,
+        site_actuator_count,
+        site_pump_count,
+        site_valve_count,
+        site_cctv_count,
+        site_set_alarm_enable,
+        site_set_alarm_high,
+        site_set_alarm_low,
+        site_set_alarm_timer)
+    VALUES(
+      #{sid},
+      #{uid},
+      #{site_name},
+      #{site_address},
+      #{site_gps_latitude},
+      #{site_gps_longitude},
+      #{site_th_sensor_count},
+      #{site_soil_sensor_count},
+      #{site_side_motor_count},
+      #{site_top_motor_count},
+      #{site_actuator_count},
+      #{site_pump_count},
+      #{site_valve_count},
+      #{site_cctv_count},
+      #{site_set_alarm_enable},
+      #{site_set_alarm_high},
+      #{site_set_alarm_low},
+      #{site_set_alarm_timer})
+  </insert>
+  <update id="sitesUpdateParameters">
+    UPDATE
+      sites
+    <set>
+      <if test="uid != null and sid != null">
+        site_name = #{site_name},
+        site_address = #{site_address},
+        site_gps_latitude = #{site_gps_latitude},
+        site_gps_longitude = #{site_gps_longitude},
+        site_th_sensor_count = #{site_th_sensor_count},
+        site_soil_sensor_count = #{site_soil_sensor_count},
+        site_side_motor_count = #{site_side_motor_count},
+        site_top_motor_count = #{site_top_motor_count},
+        site_actuator_count = #{site_actuator_count},
+        site_pump_count = #{site_pump_count},
+        site_valve_count = #{site_valve_count},
+        site_cctv_count = #{site_cctv_count},
+        site_set_alarm_enable = #{site_set_alarm_enable},
+        site_set_alarm_high = #{site_set_alarm_high},
+        site_set_alarm_low = #{site_set_alarm_low},
+        site_set_alarm_timer = #{site_set_alarm_timer}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+  </update>
+  <insert id="ssInsertParameters">
+    INSERT INTO
+      sensors(
+      sensor_id,
+      sid,
+      uid,
+      sensor_type,
+      sensor_name
+        )
+    VALUES(
+      #{sensor_id},
+      #{sid},
+      #{uid},
+      #{sensor_type},
+      #{sensor_name})
+  </insert>
+  <update id="ssUpdateParameters">
+    UPDATE
+      sensors
+    <set>
+      <if test="uid != null and sid != null">
+        sensor_name = #{sensor_name},
+        sensor_type = #{sensor_type}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+      AND sensor_id = #{sensor_id}
+  </update>
+  <insert id="pumpInsertParameters">
+    INSERT INTO
+      pumps(
+      pump_id,
+      sid,
+      uid,
+      pump_action,
+      pump_name
+        )
+    VALUES(
+      #{pump_id},
+      #{sid},
+      #{uid},
+      #{pump_action},
+      #{pump_name})
+  </insert>
+  <update id="pumpUpdateParameters">
+    UPDATE
+      pumps
+    <set>
+      <if test="uid != null and sid != null">
+        pump_name = #{pump_name},
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+      AND pump_id = #{pump_id}
+  </update>
+  <insert id="motorInsertParameters">
+    INSERT INTO
+      motors(
+      motor_id,
+      sid,
+      uid,
+      motor_type,
+      motor_action,
+      motor_name
+        )
+    VALUES(
+      #{motor_id},
+      #{sid},
+      #{uid},
+      #{motor_type},
+      #{motor_action},
+      #{motor_name})
+  </insert>
+  <update id="motorUpdateParameters">
+    UPDATE
+      motors
+    <set>
+      <if test="uid != null and sid != null">
+        motor_type = #{motor_type},
+        motor_name = #{motor_name}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+      AND motor_id = #{motor_id}
+  </update>
+  <insert id="valveInsertParameters">
+    INSERT INTO
+      valves(
+      valve_id,
+      sid,
+      uid,
+      valve_action,
+      valve_name
+        )
+    VALUES(
+      #{valve_id},
+      #{sid},
+      #{uid},
+      #{valve_action},
+      #{valve_name})
+  </insert>
+  <update id="valveUpdateParameters">
+    UPDATE
+      valves
+    <set>
+      <if test="uid != null and sid != null">
+        valve_name = #{valve_name}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+      AND valve_id = #{valve_id}
+  </update>
+  <insert id="cctvInsertParameters">
+    INSERT INTO
+      cctvs(
+      cctv_id,
+      sid,
+      uid,
+      cctv_type,
+      cctv_name,
+      cctv_url
+        )
+    VALUES(
+      #{cctv_id},
+      #{sid},
+      #{uid},
+      #{cctv_type},
+      #{cctv_name},
+      #{cctv_url})
+  </insert>
+  <update id="cctvUpdateParameters">
+    UPDATE
+      cctvs
+    <set>
+      <if test="uid != null and sid != null">
+        cctv_type = #{cctv_type},
+        cctv_name = #{cctv_name},
+        cctv_url = #{cctv_url}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+      AND cctv_id = #{cctv_id}
+  </update>
+  <insert id="actuatorInsertParameters">
+    INSERT INTO
+      actuators(
+      actuator_id,
+      sid,
+      uid,
+      actuator_type,
+      actuator_action,
+      actuator_name
+        )
+    VALUES(
+      #{actuator_id},
+      #{sid},
+      #{uid},
+      #{actuator_type},
+      #{actuator_action},
+      #{actuator_name})
+  </insert>
+  <update id="actuatorUpdateParameters">
+    UPDATE
+      motors
+    <set>
+      <if test="uid != null and sid != null">
+        actuator_type = #{actuator_type},
+        actuator_name = #{actuator_name}
+      </if>
+    </set>
+    WHERE
+      uid = #{uid}
+      AND sid = #{sid}
+      AND motor_id = #{actuator_id}
+  </update>
+</mapper>
